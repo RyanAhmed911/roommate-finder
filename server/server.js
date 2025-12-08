@@ -17,11 +17,3 @@ app.listen(port, ()=> console.log(`Server Started on PORT:${port}`));
 app.get('/', (req, res) => {
     res.send('Roommate Finder Server is running successfully.');
  });
-
-// connectDB((err) => {
-//     if (!err) {
-//         app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-//     } else {
-//         console.log('Failed to connect to MongoDB Atlas');
-//     }
-// });
