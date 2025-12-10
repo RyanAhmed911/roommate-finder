@@ -16,6 +16,4 @@ app.use(cors({credentials: true}));
 app.get('/', (req, res) => res.send('API is running...'));
 app.use('/api/auth', authRouter);
 
-app.get('/', (req, res) => {
-    res.send('Roommate Finder Server is running successfully.');
- });
+app.listen(port, () => console.log(`Server running on port ${port}`));
