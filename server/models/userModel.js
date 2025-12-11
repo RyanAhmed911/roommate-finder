@@ -1,3 +1,4 @@
+//This part was implemented by Nusayba
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
@@ -9,7 +10,6 @@ const userSchema = new mongoose.Schema({
     isAccountVerified : {type: Boolean, default: false},
     resetOtp : {type: String, default: ''},
     resetOtpExpireAt: {type:Number, default: 0},
-    
     hobbies: { type: [String], default: [] },
     age: { type: Number },
     location: { type: String },
@@ -18,11 +18,9 @@ const userSchema = new mongoose.Schema({
     medicalConditions: { type: [String], default: [] },
     institution: {type: [String], default: [] },
     gender: { type: String},
-    visitors: { type: Boolean }, 
-
-
-    
+    visitors: { type: Boolean },  
 })
 
 const userModel= mongoose.models.user || mongoose.model('user', userSchema);
 export default userModel;
+//This part was implemented by Nusayba
