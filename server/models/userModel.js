@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
     resetOtp : {type: String, default: ''},
     resetOtpExpireAt: {type:Number, default: 0},
     
-    //Nusayba: From Class Diagram 
     hobbies: { type: [String], default: [] },
     age: { type: Number },
     location: { type: String },
@@ -19,11 +18,11 @@ const userSchema = new mongoose.Schema({
     medicalConditions: { type: [String], default: [] },
     institution: {type: [String], default: [] },
     gender: { type: String},
-    visitors: { type: Boolean },
-    //Nusayba: From Class Diagram 
+    visitors: { type: Boolean }, 
 
+
+    
 })
 
 const userModel= mongoose.models.user || mongoose.model('user', userSchema);
-
 export default userModel;
