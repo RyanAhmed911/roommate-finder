@@ -1,3 +1,4 @@
+//This part was implemented by Ryan
 import express from 'express';
 import { login, logout, register, sendVerifyOtp, verifyEmail, isAuthenticated, sendResetOtp, resetPassword } from '../controllers/authController.js';
 import userAuth from '../middleware/userAuth.js';
@@ -14,3 +15,5 @@ authRouter.post('/send-reset-otp', sendResetOtp)
 authRouter.post('/reset-password', resetPassword);
 
 export default authRouter;
+//This part was implemented by Ryan
+

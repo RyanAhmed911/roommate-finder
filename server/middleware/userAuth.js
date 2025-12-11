@@ -1,3 +1,4 @@
+//This part was implemented by Ryan
 import jwt from 'jsonwebtoken';
 
 const userAuth = async (req, res, next) => {
@@ -23,3 +24,4 @@ const userAuth = async (req, res, next) => {
 }
 
 export default userAuth;
+//This part was implemented by Ryan

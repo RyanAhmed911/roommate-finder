@@ -1,3 +1,4 @@
+//This part was implemented by Ryan
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/userModel.js';
@@ -226,3 +227,4 @@ export const resetPassword = async (req, res) => {
         return res.json({success: false, message: error.message});
     }
 }
+//This part was implemented by Ryan
