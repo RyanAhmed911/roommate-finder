@@ -1,27 +1,27 @@
 //This part was implemented by Ryan
-import jwt from 'jsonwebtoken';
+// server/middleware/userAuth.js
+import jwt from "jsonwebtoken";
 
-const userAuth = async (req, res, next) => {
-    const {token} = req.cookies;
+const userAuth = (req, res, next) => {
+  try {
+    const token = req.cookies?.token;
 
     if (!token) {
-        return res.json({success: false, message: 'No authentication token, access denied'});
+      return res.status(401).json({ success: false, message: "Not authorized, token missing" });
     }
 
-    try {
-        const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
-        if (tokenDecode.id) {
-            req.body.userId = tokenDecode.id;
-        } else {
-            return res.json({success: false, message: 'Token verification failed, access denied'});
-        }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        next();
+    // ✅ your controllers use req.userId
+    req.userId = decoded.id;
 
-    } catch (error) {
-        res.json({success: false, message: error.message});
-    }
-}
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Not authorized, invalid token" });
+  }
+};
 
 export default userAuth;
-//This part was implemented by Ryan
+
+
+
