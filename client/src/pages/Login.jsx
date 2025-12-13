@@ -5,6 +5,7 @@ import { AppContent } from '../context/AppContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
+{/*added by Ryan*/}
 const Login = () => {
 
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  {/*added by Ryan*/}
   
   {/*added by Nusayba*/}
   const onSubmitHandler = async (e)=>{
@@ -49,6 +51,7 @@ const Login = () => {
   }
   {/*added by Nusayba*/}
   
+  {/*added by Ryan*/}
   return (
     <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-40 sm:w-48 cursor-pointer"/>
@@ -97,12 +100,10 @@ const Login = () => {
           <span onClick={() => setState('Sign Up')} className="text-blue-400 cursor-pointer">Sign Up</span>
         </p>
         )}
-        
-        
-
       </div>
     </div>
   )
 }
+{/*added by Ryan*/}
 
 export default Login

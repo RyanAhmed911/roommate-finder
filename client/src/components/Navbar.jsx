@@ -19,7 +19,7 @@ const Navbar = () => {
 
       if(data.success){
         navigate('/email-verify')
-        toast.success("data.message")
+        toast.success(data.message)
       }else{
         toast.error(data.message)
       }
@@ -42,6 +42,7 @@ const Navbar = () => {
   }
   {/*added by Nusayba*/}
   
+  {/*added by Ryan*/}
   return (
     <div className="w-full flex justify-between items-center p-4 sm:p-6 sm:px-24 absolute top-0">
 
@@ -70,5 +71,6 @@ const Navbar = () => {
     </div>
   )
 }
+{/*added by Ryan*/}
 
 export default Navbar

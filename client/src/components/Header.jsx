@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { AppContent } from '../context/AppContext'
 
+{/*added by Ryan*/}
 const Header = () => {
 
   const {userData} = useContext(AppContent)
@@ -24,5 +25,6 @@ const Header = () => {
     </div>
   )
 }
+{/*added by Ryan*/}
 
 export default Header
