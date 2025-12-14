@@ -9,3 +9,4 @@ userRouter.get('/data', userAuth, getUserData);
 
 export default userRouter;
 //This part was implemented by Ryan
+
