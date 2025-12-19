@@ -26,22 +26,36 @@ const Login = () => {
 
       if(state === 'Sign Up'){
         const {data} = await axios.post(backendUrl + '/api/auth/register', {name, email, password})
-  
+         
         if(data.success){
           setIsLoggedin(true)
-          getUserData()
-          navigate('/')
-        }else{
-          toast.error(data.message)
+          await getUserData()
+          if (data.requiresVerification) {
+            toast.success(data.message) 
+            navigate('/email-verify')  
+          } else {
+            navigate('/')
+          }
         }
-      }else{
+
+        else{
+          toast.error(data.message)
+        }}
+      else{
         const {data} = await axios.post(backendUrl + '/api/auth/login', {email, password})
-          
+
         if(data.success){
-        setIsLoggedin(true)
-        getUserData()
-        navigate('/')
-        }else{
+          setIsLoggedin(true)
+          await getUserData()
+          if (data.requiresVerification) {
+            toast.success(data.message) 
+            navigate('/email-verify')  
+          } else {
+            navigate('/')
+            }
+        }
+       
+        else{
           toast.error(error.message)
         }
        }
