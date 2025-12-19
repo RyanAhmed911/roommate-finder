@@ -16,6 +16,7 @@ export const getUserData = async (req, res) => {
                 name: user.name,
                 isAccountVerified: user.isAccountVerified,
                 isProfileCompleted: user.isProfileCompleted,
+                image: user.image
             }  
         }); 
     } catch (error) {
@@ -35,7 +36,8 @@ export const updateUserProfile = async (req, res) => {
             medicalConditions,
             institution,
             gender,
-            visitors
+            visitors,
+            image
         } = req.body;
 
         if (!userId) {
@@ -52,6 +54,7 @@ export const updateUserProfile = async (req, res) => {
             institution,
             gender,
             visitors,
+            image,
             isProfileCompleted: true
         });
 

@@ -31,10 +31,14 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
   </label>
 );
 
+
 const CreateProfile = () => {
 
   const navigate = useNavigate()
   const { backendUrl, userData, getUserData } = useContext(AppContent)
+
+  const [image, setImage] = useState(false) 
+  const [imagePreview, setImagePreview] = useState('') 
 
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('') 
@@ -46,6 +50,27 @@ const CreateProfile = () => {
   const [smoker, setSmoker] = useState(false)
   const [visitors, setVisitors] = useState(false)
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  }
+
+  const convertToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+          const fileReader = new FileReader();
+          fileReader.readAsDataURL(file);
+          fileReader.onload = () => {
+              resolve(fileReader.result);
+          };
+          fileReader.onerror = (error) => {
+              reject(error);
+          };
+      });
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault()
     try {
@@ -54,6 +79,11 @@ const CreateProfile = () => {
       const hobbiesArray = hobbies.split(',').map(item => item.trim())
       const medicalArray = medicalConditions.split(',').map(item => item.trim())
       
+      let imageBase64 = "";
+      if (image) {
+        imageBase64 = await convertToBase64(image);
+      }
+
       const { data } = await axios.post(backendUrl + '/api/user/update-profile', {
         userId: userData?._id,
         age: Number(age),
@@ -64,7 +94,8 @@ const CreateProfile = () => {
         personalityType,
         medicalConditions: medicalArray,
         smoker,
-        visitors
+        visitors,
+        image: imageBase64 
       })
 
       if (data.success) {
@@ -87,18 +118,38 @@ const CreateProfile = () => {
       <div className="bg-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-2xl text-sm mt-20 sm:my-10">
         
         <h2 className="text-3xl font-bold text-white text-center mb-2">Setup Your Profile</h2>
-        <p className="text-center text-indigo-300 mb-10">Help others get to know you better.</p>
+        <p className="text-center text-indigo-300 mb-8">Help others get to know you better.</p>
 
         <form onSubmit={onSubmitHandler} className='flex flex-col gap-6'>
           
+          <div className="flex flex-col items-center gap-4 mb-4">
+            <label htmlFor="image-upload" className="cursor-pointer group relative">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#333A5C] group-hover:border-indigo-500 transition-all flex items-center justify-center bg-[#333A5C]">
+                    {imagePreview ? (
+                        <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                        <svg className="w-10 h-10 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    )}
+                </div>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <p className="text-white text-xs font-semibold">Upload</p>
+                </div>
+            </label>
+            <input 
+                onChange={handleImageChange} 
+                type="file" 
+                id="image-upload" 
+                hidden 
+                accept="image/*" 
+            />
+            <p className="text-indigo-300 text-xs">Tap to upload profile picture</p>
+          </div>
+
           <div className='flex flex-col sm:flex-row gap-6'>
             <div className="flex-1">
-                <InputField 
-                    label="Age" 
-                    value={age} 
-                    onChange={e => setAge(e.target.value)} 
-                    type="number" placeholder="e.g. 24" required 
-                />
+                <InputField label="Age" value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="e.g. 24" required />
             </div>
             <div className="flex-1 flex flex-col gap-2">
                <label className="text-indigo-300 text-sm font-medium ml-2">Gender <span className="text-red-400">*</span></label>
@@ -122,12 +173,7 @@ const CreateProfile = () => {
             </div>
           </div>
 
-          <InputField 
-            label="Current Location" 
-            value={location} 
-            onChange={e => setLocation(e.target.value)} 
-            placeholder="City, Area" required 
-          />
+          <InputField label="Current Location" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Area" required />
 
            <div className='flex flex-col sm:flex-row gap-6'>
               <div className="flex-1">
@@ -138,19 +184,9 @@ const CreateProfile = () => {
               </div>
            </div>
 
-          <InputField 
-            label="Hobbies & Interests" 
-            value={hobbies} 
-            onChange={e => setHobbies(e.target.value)} 
-            placeholder="Reading, Gaming, Cooking (comma separated)" 
-          />
+          <InputField label="Hobbies & Interests" value={hobbies} onChange={e => setHobbies(e.target.value)} placeholder="Reading, Gaming, Cooking (comma separated)" />
 
-          <InputField 
-            label="Medical Conditions" 
-            value={medicalConditions} 
-            onChange={e => setMedicalConditions(e.target.value)} 
-            placeholder="Any allergies or conditions roommates should know? (comma separated)" 
-          />
+          <InputField label="Medical Conditions" value={medicalConditions} onChange={e => setMedicalConditions(e.target.value)} placeholder="Any allergies? (comma separated)" />
 
           <div className="my-4 border-b border-slate-700"></div>
 
