@@ -32,7 +32,7 @@ export const register = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        // added
+        //Added by Nusayba
         const otp = String(Math.floor(100000 + Math.random() * 900000));
         user.verifyOtp = otp;
         user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
@@ -44,8 +44,8 @@ export const register = async (req, res) => {
             html: EMAIL_VERIFY_TEMPLATE.replace('{{email}}', user.email).replace('{{otp}}', otp)
         };
         await transporter.sendMail(otpMailOptions);
+        //Added by Nusayba
 
-   
         const mailOptions = {
             from: process.env.SENDER_EMAIL,
             to: email,
@@ -55,7 +55,7 @@ export const register = async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        //modified
+        //Modified by Nusayba
         return res.json({success: true, requiresVerification: true, message: 'User registered successfully. Verification OTP sent'});
 
     } catch (error) {
@@ -87,17 +87,13 @@ export const login = async (req, res) => {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000});
         
-         
-           //new
-        // Check verification
-        if (!user.isAccountVerified) {
-            // Send OTP
+        //Added by Nusayba
+        if (!user.isAccountVerified) {   
             const otp = String(Math.floor(100000 + Math.random() * 900000));
             user.verifyOtp = otp;
             user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000;
             await user.save();
 
-            // Send email
             const mailOptions = {
                 from: process.env.SENDER_EMAIL,
                 to: user.email,
@@ -110,7 +106,7 @@ export const login = async (req, res) => {
             message: 'Verification OTP sent to email'
         });
         }
-           //new
+        //Added by Nusayba
 
         return res.json({success: true, message: 'Login successful'});
 

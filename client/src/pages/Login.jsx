@@ -26,8 +26,7 @@ const Login = () => {
 
       if(state === 'Sign Up'){
         const {data} = await axios.post(backendUrl + '/api/auth/register', {name, email, password})
-        
-        //new
+         
         if(data.success){
           setIsLoggedin(true)
           await getUserData()
@@ -38,15 +37,14 @@ const Login = () => {
             navigate('/')
           }
         }
-          //new
+
         else{
           toast.error(data.message)
         }}
       else{
         const {data} = await axios.post(backendUrl + '/api/auth/login', {email, password})
 
-          //new
-          if(data.success){
+        if(data.success){
           setIsLoggedin(true)
           await getUserData()
           if (data.requiresVerification) {
@@ -54,9 +52,9 @@ const Login = () => {
             navigate('/email-verify')  
           } else {
             navigate('/')
-          }
+            }
         }
-        //new
+       
         else{
           toast.error(error.message)
         }
