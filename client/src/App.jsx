@@ -9,6 +9,7 @@ import CreateProfile from './pages/CreateProfile.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+//Changed by Ryan
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,15 +17,26 @@ const App = () => {
 
   useEffect(() => {
     if (isLoggedin && userData) {
-      if (!userData.isProfileCompleted && location.pathname !== '/create-profile') {
-        navigate('/create-profile');
+
+      if (!userData.isAccountVerified) {
+        if (location.pathname !== '/email-verify') {
+          navigate('/email-verify');
+        }
+        return; 
+      }
+
+      if (!userData.isProfileCompleted) {
+        if (location.pathname !== '/create-profile') {
+          navigate('/create-profile');
+        }
       }
 
       if (userData.isProfileCompleted && location.pathname === '/create-profile') {
         navigate('/');
       }
     }
-  }, [isLoggedin, userData, location.pathname, navigate]);
+  }, [isLoggedin, userData, navigate, location.pathname]);
+//Changed by Ryan
 
   return (
     <div> 

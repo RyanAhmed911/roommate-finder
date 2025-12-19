@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 // Prachurzo: From class diagram
-
 const messageSchema = new mongoose.Schema({
     sender: { type: String, required: true },
     receiver: { type: String, required: true },

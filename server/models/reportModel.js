@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 // Prachurzo: From class diagram
 const reportSchema = new mongoose.Schema({
     reportID: { type: String, required: true, unique: true },
