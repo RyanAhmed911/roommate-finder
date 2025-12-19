@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
     //Nusayba: From Class Diagram 
 
     isProfileCompleted : {type: Boolean, default: false}, //Ryan: To check if user has completed profile after signup
+    image: { type: String, default: '' }, //Ryan: To store profile image 
 })
 
 const userModel= mongoose.models.user || mongoose.model('user', userSchema);
