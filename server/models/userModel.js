@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     visitors: { type: Boolean },
     //Nusayba: From Class Diagram 
 
+    isProfileCompleted : {type: Boolean, default: false}, //Ryan: To check if user has completed profile after signup
 })
 
 const userModel= mongoose.models.user || mongoose.model('user', userSchema);
