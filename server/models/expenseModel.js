@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 // Prachurzo: From class diagram
-
 const expenseSchema = new mongoose.Schema({
     status: { type: String, required: true },
     type: { type: String, required: true },

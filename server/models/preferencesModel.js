@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 // Prachurzo: From class diagram
 const preferencesSchema = new mongoose.Schema({
     smoker: { type: Boolean },

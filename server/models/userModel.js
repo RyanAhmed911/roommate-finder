@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
 
-
-
-
 const userSchema = new mongoose.Schema({
     name : {type: String, required: true},
     email : {type: String, required: true, unique: true},
@@ -20,11 +17,12 @@ const userSchema = new mongoose.Schema({
     smoker: { type: Boolean },
     personalityType: { type: String },
     medicalConditions: { type: [String], default: [] },
-    institution: {type: [String], default: [] },
+    institution: {type: String, default: '' },
     gender: { type: String},
     visitors: { type: Boolean },
     //Nusayba: From Class Diagram 
 
+    isProfileCompleted : {type: Boolean, default: false}, //Ryan: To check if user has completed profile after signup
 })
 
 const userModel= mongoose.models.user || mongoose.model('user', userSchema);

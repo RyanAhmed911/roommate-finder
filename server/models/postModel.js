@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 // Prachurzo: From class diagram
-
 const postSchema = new mongoose.Schema({
     room: { type: mongoose.Schema.Types.ObjectId, ref: 'room', required: true },
     postID: { type: String, required: true, unique: true },
