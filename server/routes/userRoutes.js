@@ -10,3 +10,4 @@ userRouter.post('/update-profile', userAuth, updateUserProfile);
 
 export default userRouter;
 //This part was implemented by Ryan
+
