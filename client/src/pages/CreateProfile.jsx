@@ -31,6 +31,24 @@ const ToggleSwitch = ({ label, checked, onChange }) => (
   </label>
 );
 
+const SelectField = ({ label, value, onChange, options }) => (
+    <div className="flex flex-col gap-2">
+        <label className="text-indigo-300 text-sm font-medium ml-2">{label}</label>
+        <div className="w-full px-5 py-3 rounded-full bg-[#333A5C] relative focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+            <select 
+                value={value} 
+                onChange={onChange} 
+                className="bg-transparent outline-none text-white w-full appearance-none cursor-pointer">
+                {options.map((opt) => (
+                    <option key={opt} value={opt} className="text-slate-900">{opt}</option>
+                ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-indigo-400">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+        </div>
+    </div>
+);
 
 const CreateProfile = () => {
 
@@ -39,16 +57,51 @@ const CreateProfile = () => {
 
   const [image, setImage] = useState(false) 
   const [imagePreview, setImagePreview] = useState('') 
-
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('') 
   const [location, setLocation] = useState('')
   const [institution, setInstitution] = useState('')
+  const [phone, setPhone] = useState('')
+  const [nationality, setNationality] = useState('')
+  const [status, setStatus] = useState('')
   const [hobbies, setHobbies] = useState('')
   const [personalityType, setPersonalityType] = useState('')
   const [medicalConditions, setMedicalConditions] = useState('')
+  const [languages, setLanguages] = useState('')
+  const [cleanlinessLevel, setCleanlinessLevel] = useState('Moderate')
+  const [sleepSchedule, setSleepSchedule] = useState('Flexible')
+  const [noiseTolerance, setNoiseTolerance] = useState('Moderate')
+  const [foodHabits, setFoodHabits] = useState('Non-Vegetarian')
   const [smoker, setSmoker] = useState(false)
   const [visitors, setVisitors] = useState(false)
+  const [petsAllowed, setPetsAllowed] = useState(false)
+  const [drinking, setDrinking] = useState(false)
+
+  React.useEffect(() => {
+    if (userData) {
+      setAge(userData.age || '')
+      setGender(userData.gender || '')
+      setLocation(userData.location || '')
+      setInstitution(userData.institution || '')
+      setPhone(userData.phone || '')
+      setStatus(userData.status || '') 
+      setNationality(userData.nationality || '')
+      setPersonalityType(userData.personalityType || '')
+      setCleanlinessLevel(userData.cleanlinessLevel || 'Moderate')
+      setSleepSchedule(userData.sleepSchedule || 'Flexible')
+      setNoiseTolerance(userData.noiseTolerance || 'Moderate')
+      setFoodHabits(userData.foodHabits || 'Non-Vegetarian')
+      setSmoker(userData.smoker || false)
+      setVisitors(userData.visitors || false)
+      setPetsAllowed(userData.petsAllowed || false)
+      setDrinking(userData.drinking || false)
+
+      if (Array.isArray(userData.languages)) setLanguages(userData.languages.join(', '))
+      if (Array.isArray(userData.hobbies)) setHobbies(userData.hobbies.join(', '))
+      if (Array.isArray(userData.medicalConditions)) setMedicalConditions(userData.medicalConditions.join(', '))
+      if (userData.image) setImagePreview(userData.image)
+    }
+  }, [userData])
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -62,12 +115,8 @@ const CreateProfile = () => {
       return new Promise((resolve, reject) => {
           const fileReader = new FileReader();
           fileReader.readAsDataURL(file);
-          fileReader.onload = () => {
-              resolve(fileReader.result);
-          };
-          fileReader.onerror = (error) => {
-              reject(error);
-          };
+          fileReader.onload = () => resolve(fileReader.result);
+          fileReader.onerror = (error) => reject(error);
       });
   };
 
@@ -78,8 +127,9 @@ const CreateProfile = () => {
 
       const hobbiesArray = hobbies.split(',').map(item => item.trim())
       const medicalArray = medicalConditions.split(',').map(item => item.trim())
-      
-      let imageBase64 = "";
+      const languagesArray = languages.split(',').map(item => item.trim())
+
+      let imageBase64 = userData.image || ""; 
       if (image) {
         imageBase64 = await convertToBase64(image);
       }
@@ -90,12 +140,22 @@ const CreateProfile = () => {
         gender,
         location,
         institution,
+        phone,
+        status, 
+        nationality,
+        languages: languagesArray,
         hobbies: hobbiesArray,
         personalityType,
         medicalConditions: medicalArray,
+        cleanlinessLevel,
+        sleepSchedule,
+        noiseTolerance,
+        foodHabits,
         smoker,
         visitors,
-        image: imageBase64 
+        petsAllowed,
+        drinking,
+        image: imageBase64,
       })
 
       if (data.success) {
@@ -122,6 +182,7 @@ const CreateProfile = () => {
 
         <form onSubmit={onSubmitHandler} className='flex flex-col gap-6'>
           
+          {/* Image Upload */}
           <div className="flex flex-col items-center gap-4 mb-4">
             <label htmlFor="image-upload" className="cursor-pointer group relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#333A5C] group-hover:border-indigo-500 transition-all flex items-center justify-center bg-[#333A5C]">
@@ -137,16 +198,10 @@ const CreateProfile = () => {
                     <p className="text-white text-xs font-semibold">Upload</p>
                 </div>
             </label>
-            <input 
-                onChange={handleImageChange} 
-                type="file" 
-                id="image-upload" 
-                hidden 
-                accept="image/*" 
-            />
-            <p className="text-indigo-300 text-xs">Tap to upload profile picture</p>
+            <input onChange={handleImageChange} type="file" id="image-upload" hidden accept="image/*" />
           </div>
 
+          {/* Age & Gender */}
           <div className='flex flex-col sm:flex-row gap-6'>
             <div className="flex-1">
                 <InputField label="Age" value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="e.g. 24" required />
@@ -175,29 +230,79 @@ const CreateProfile = () => {
 
           <InputField label="Current Location" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Area" required />
 
-           <div className='flex flex-col sm:flex-row gap-6'>
+          {/* Institution & Phone */}
+          <div className='flex flex-col sm:flex-row gap-6'>
               <div className="flex-1">
                 <InputField label="Institution / University" value={institution} onChange={e => setInstitution(e.target.value)} placeholder="Where do you study?" />
               </div>
               <div className="flex-1">
-                 <InputField label="Personality Type" value={personalityType} onChange={e => setPersonalityType(e.target.value)} placeholder="e.g. Introvert, Night Owl" />
+                 <InputField label="Phone Number" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+880 1XXX..." />
               </div>
-           </div>
+          </div>
+          
+          <div className='flex flex-col sm:flex-row gap-6'>
+            <div className="flex-1">
+                <InputField label="Nationality" value={nationality} onChange={e => setNationality(e.target.value)} placeholder="e.g. Bangladeshi" />
+            </div>
+            <div className="flex-1">
+                <InputField label="Languages Spoken" value={languages} onChange={e => setLanguages(e.target.value)} placeholder="English, Bengali..." />
+            </div>
+          </div>
 
-          <InputField label="Hobbies & Interests" value={hobbies} onChange={e => setHobbies(e.target.value)} placeholder="Reading, Gaming, Cooking (comma separated)" />
+          <div className="my-2 border-b border-slate-700"></div>
+          <h3 className="text-white font-medium mb-2 ml-2">Personality & Lifestyle</h3>
+
+          <div className='flex flex-col sm:flex-row gap-6'>
+            <div className="flex-1">
+                <InputField label="Personality Type" value={personalityType} onChange={e => setPersonalityType(e.target.value)} placeholder="e.g. Introvert, Night Owl" />
+            </div>
+            <div className="flex-1">
+                <InputField label="Hobbies" value={hobbies} onChange={e => setHobbies(e.target.value)} placeholder="Gaming, Reading..." />
+            </div>
+          </div>
+          
+          {/* Lifestyle Dropdowns Row 1 */}
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
+              <SelectField 
+                label="Food Habits" 
+                value={foodHabits} 
+                onChange={e => setFoodHabits(e.target.value)} 
+                options={['Non-Vegetarian', 'Vegetarian', 'Vegan']} 
+              />
+               <SelectField 
+                label="Cleanliness Level" 
+                value={cleanlinessLevel} 
+                onChange={e => setCleanlinessLevel(e.target.value)} 
+                options={['Neat', 'Moderate', 'Laid-back']} 
+              />
+          </div>
+
+          {/* Lifestyle Dropdowns Row 2 */}
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
+              <SelectField 
+                label="Sleep Schedule" 
+                value={sleepSchedule} 
+                onChange={e => setSleepSchedule(e.target.value)} 
+                options={['Early Bird', 'Night Owl', 'Flexible']} 
+              />
+               <SelectField 
+                label="Noise Tolerance" 
+                value={noiseTolerance} 
+                onChange={e => setNoiseTolerance(e.target.value)} 
+                options={['Low', 'Moderate', 'High']} 
+              />
+          </div>
 
           <InputField label="Medical Conditions" value={medicalConditions} onChange={e => setMedicalConditions(e.target.value)} placeholder="Any allergies? (comma separated)" />
 
-          <div className="my-4 border-b border-slate-700"></div>
+          <div className="my-2 border-b border-slate-700"></div>
 
           <h3 className="text-white font-medium mb-2 ml-2">Preferences</h3>
-          <div className="flex flex-col sm:flex-row gap-6">
-              <div className="flex-1">
-                 <ToggleSwitch label="Do you smoke?" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} />
-              </div>
-              <div className="flex-1">
-                 <ToggleSwitch label="Are visitors allowed?" checked={visitors} onChange={(e) => setVisitors(e.target.checked)} />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <ToggleSwitch label="Do you smoke?" checked={smoker} onChange={(e) => setSmoker(e.target.checked)} />
+              <ToggleSwitch label="Do you drink?" checked={drinking} onChange={(e) => setDrinking(e.target.checked)} />
+              <ToggleSwitch label="Visitors allowed?" checked={visitors} onChange={(e) => setVisitors(e.target.checked)} />
+              <ToggleSwitch label="Pets allowed?" checked={petsAllowed} onChange={(e) => setPetsAllowed(e.target.checked)} />
           </div>
 
           <button className="w-full py-3.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg hover:scale-[1.02] transition-all duration-300 mt-8 shadow-lg">
