@@ -2,10 +2,9 @@ import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { AppContent } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
 
-{/*added by Ryan*/}
-{/*modified by Nusayba*/}
+//added by Ryan
+//modified by Nusayba
 const Header = () => {
 
   const {userData} = useContext(AppContent)
@@ -72,7 +71,6 @@ const Header = () => {
      </div>
    )
  }
-{/*added by Ryan*/}
-{/*modified by Nusayba*/}
- 
- export default Header
+//added by Ryan
+//modified by Nusayba
+export default Header
