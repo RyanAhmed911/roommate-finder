@@ -59,12 +59,11 @@ const Navbar = () => {
           <ul className ='list-none m-0 p-2 bg-indigo-500 text-sm'>
             {!userData.isAccountVerified &&
             <li onClick= {sendVerificationOtp} className='py-1 px-2 hover:bg-indigo-200 cursor-pointer'>Verify Email</li>}
-
+            <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
             <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
           </ul>
         </div>
       </div>
-
       : <button 
           onClick={() => navigate('/login')} 
           className="flex items-center gap-2 border border-gray-500 rounded-full px-6 py-2 text-gray-800 hover:bg-gray-100 transition-all">
@@ -72,7 +71,6 @@ const Navbar = () => {
           <img src={assets.arrow_icon} alt="" />
         </button>
     }
-
     </div>
   )
 }

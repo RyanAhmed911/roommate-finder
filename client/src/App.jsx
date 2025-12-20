@@ -6,6 +6,7 @@ import Login from './pages/Login.jsx';
 import EmailVerify from './pages/EmailVerify.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import CreateProfile from './pages/CreateProfile.jsx';
+import MyProfile from './pages/MyProfile.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -30,10 +31,6 @@ const App = () => {
           navigate('/create-profile');
         }
       }
-
-      if (userData.isProfileCompleted && location.pathname === '/create-profile') {
-        navigate('/');
-      }
     }
   }, [isLoggedin, userData, navigate, location.pathname]);
 //Changed by Ryan
@@ -47,6 +44,7 @@ const App = () => {
         <Route path='/email-verify' element={<EmailVerify />} /> {/*added by Ryan*/}
         <Route path='/reset-password' element={<ResetPassword />} /> {/*added by Ryan*/}
         <Route path='/create-profile' element={<CreateProfile />}/> {/*added by Ryan*/}
+        <Route path='/my-profile' element={<MyProfile />}/> {/*added by Ryan*/}
       </Routes>
     </div>
   )

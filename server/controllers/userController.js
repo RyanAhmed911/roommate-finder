@@ -16,7 +16,26 @@ export const getUserData = async (req, res) => {
                 name: user.name,
                 isAccountVerified: user.isAccountVerified,
                 isProfileCompleted: user.isProfileCompleted,
-                image: user.image
+                image: user.image,
+                age: user.age,
+                gender: user.gender,
+                location: user.location,
+                institution: user.institution,
+                personalityType: user.personalityType,
+                hobbies: user.hobbies,
+                medicalConditions: user.medicalConditions,
+                smoker: user.smoker,
+                visitors: user.visitors,
+                phone: user.phone,
+                status: user.status,
+                nationality: user.nationality,
+                languages: user.languages,
+                petsAllowed: user.petsAllowed,
+                drinking: user.drinking,
+                cleanlinessLevel: user.cleanlinessLevel,
+                sleepSchedule: user.sleepSchedule,
+                noiseTolerance: user.noiseTolerance,
+                foodHabits: user.foodHabits
             }  
         }); 
     } catch (error) {
@@ -37,7 +56,17 @@ export const updateUserProfile = async (req, res) => {
             institution,
             gender,
             visitors,
-            image
+            image,
+            phone,
+            status,
+            nationality,
+            languages,
+            petsAllowed,
+            drinking,
+            cleanlinessLevel,
+            sleepSchedule,
+            noiseTolerance,
+            foodHabits
         } = req.body;
 
         if (!userId) {
@@ -55,6 +84,16 @@ export const updateUserProfile = async (req, res) => {
             gender,
             visitors,
             image,
+            phone,
+            status,
+            nationality,
+            languages,
+            petsAllowed,
+            drinking,
+            cleanlinessLevel,
+            sleepSchedule,
+            noiseTolerance,
+            foodHabits,
             isProfileCompleted: true
         });
 
