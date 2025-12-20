@@ -44,24 +44,27 @@ const Navbar = () => {
   
   {/*added by Ryan*/}
   return (
-    <div className="w-full flex justify-between items-center p-4 sm:p-6 sm:px-24 absolute top-0">
-      <img src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48"/>
+    <div className="w-full flex justify-between items-center p-2 sm:p-2 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
+      <img onClick={() => navigate('/')} src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48 cursor-pointer"/>
       {userData ?
-      <div className = 'relative group cursor-pointer'>
-        <div className='w-8 h-8 flex justify-center items-center rounded-full bg-black text-white overflow-hidden'>
-            {userData.image ? (
-                <img src={userData.image} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-                userData.name[0].toUpperCase()
-            )}
-        </div>
-        <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-white rounded pt-10'>
-          <ul className ='list-none m-0 p-2 bg-indigo-500 text-sm'>
-            {!userData.isAccountVerified &&
-            <li onClick= {sendVerificationOtp} className='py-1 px-2 hover:bg-indigo-200 cursor-pointer'>Verify Email</li>}
-            <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
-            <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
-          </ul>
+      <div className="flex items-center gap-3">
+        <span className="font-medium text-gray-800 hidden sm:block">Hi, {userData.name}</span>
+        <div className = 'relative group cursor-pointer'>
+            <div className='w-8 h-8 flex justify-center items-center rounded-full bg-black text-white overflow-hidden border border-gray-300'>
+                {userData.image ? (
+                    <img src={userData.image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                    userData.name[0].toUpperCase()
+                )}
+            </div>
+            <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-white rounded pt-10'>
+            <ul className ='list-none m-0 p-2 bg-indigo-500 text-sm'>
+                {!userData.isAccountVerified &&
+                <li onClick= {sendVerificationOtp} className='py-1 px-2 hover:bg-indigo-200 cursor-pointer'>Verify Email</li>}
+                <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
+                <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
+            </ul>
+            </div>
         </div>
       </div>
       : <button 
