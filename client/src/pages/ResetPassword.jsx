@@ -78,7 +78,7 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
+    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)]">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-40 sm:w-48 cursor-pointer"/>
       
       {!isEmailSent && 

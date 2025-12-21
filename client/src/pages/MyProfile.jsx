@@ -11,7 +11,7 @@ const MyProfile = () => {
     if (!userData) return <div className='text-white text-center mt-20'>Loading...</div>
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-200 to-purple-400 py-10 px-4 flex justify-center">
+        <div className="min-h-screen bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)] py-10 px-4 flex justify-center">
             <div className="bg-slate-900 p-8 rounded-2xl shadow-2xl w-full max-w-4xl text-white mt-16 relative">
                 
                 {/* Back Button */}
@@ -139,7 +139,7 @@ const MyProfile = () => {
                 {/* Edit Button */}
                 <button 
                     onClick={() => navigate('/create-profile')} 
-                    className="w-full py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 font-bold mt-8 transition-all shadow-lg">
+                    className="w-full py-3.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg hover:scale-[1.02] transition-all duration-300 mt-8 shadow-lg">
                     Edit Profile
                 </button>
             </div>
