@@ -35,7 +35,7 @@ const Header = () => {
        <div className="w-full flex flex-col md:flex-row gap-6 mb-4 sm:mb-10">
          <button 
              onClick={() => navigate('/rooms')} 
-             className="group flex-1 h-36 sm:h-48 relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-500 rounded-[2rem] shadow-2xl border border-white/20 hover:scale-[1.02] transition-all duration-300"
+             className="group flex-1 h-36 sm:h-48 relative overflow-hidden bg-gradient-to-br from-blue-600/0 via-indigo-600/00 to-pink-300 rounded-[2rem] shadow-2xl border border-white/20 hover:scale-[1.02] transition-all duration-300"
          >
               <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
@@ -51,7 +51,7 @@ const Header = () => {
          </button>
          <button 
              onClick={() => navigate('/roommates')} 
-              className="group flex-1 h-36 sm:h-48 relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-[2rem] shadow-2xl border border-white/20 hover:scale-[1.02] transition-all duration-300">
+              className="group flex-1 h-36 sm:h-48 relative overflow-hidden bg-gradient-to-br from-blue-600/0 via-indigo-600/00 to-blue-300 rounded-[2rem] shadow-2xl border border-white/20 hover:scale-[1.02] transition-all duration-300">
 
               <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>

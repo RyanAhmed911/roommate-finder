@@ -42,15 +42,15 @@ const Navbar = () => {
   }
   {/*added by Nusayba*/}
   
-  {/*added by Ryan*/}
+  {/*added by Ryan, Modified by Nusayba*/}
   return (
     <div className="w-full flex justify-between items-center p-2 sm:p-2 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
       <img onClick={() => navigate('/')} src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48 cursor-pointer"/>
       {userData ?
       <div className="flex items-center gap-3">
-        <span className="font-medium text-gray-800 hidden sm:block">Hi, {userData.name}</span>
+        <span className="font-medium text-gray-800 hidden sm:block text-lg sm:text-xl">Hi, {userData.name}</span>
         <div className = 'relative group cursor-pointer'>
-            <div className='w-8 h-8 flex justify-center items-center rounded-full bg-black text-white overflow-hidden border border-gray-300'>
+            <div className='w-9 h-9 flex justify-center items-center rounded-full bg-black text-white overflow-hidden border border-gray-300'>
                 {userData.image ? (
                     <img src={userData.image} alt="Profile" className="w-full h-full object-cover" />
                 ) : (

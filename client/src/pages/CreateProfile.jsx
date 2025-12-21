@@ -172,18 +172,18 @@ const CreateProfile = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400 py-10">
+    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)] py-10">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-32 sm:w-40 cursor-pointer" />
       
       <div className="bg-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-2xl text-sm mt-20 sm:my-10">
         
         <h2 className="text-3xl font-bold text-white text-center mb-2">Setup Your Profile</h2>
-        <p className="text-center text-indigo-300 mb-8">Help others get to know you better.</p>
+        <p className="text-center text-indigo-300 mb-8">Help others get to know you better</p>
 
         <form onSubmit={onSubmitHandler} className='flex flex-col gap-6'>
           
           {/* Image Upload */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-4 mb-1">
             <label htmlFor="image-upload" className="cursor-pointer group relative">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#333A5C] group-hover:border-indigo-500 transition-all flex items-center justify-center bg-[#333A5C]">
                     {imagePreview ? (
@@ -200,6 +200,8 @@ const CreateProfile = () => {
             </label>
             <input onChange={handleImageChange} type="file" id="image-upload" hidden accept="image/*" />
           </div>
+
+          <p className="text-center text-indigo-300 mb-8">Upload your profile picture</p>
 
           {/* Age & Gender */}
           <div className='flex flex-col sm:flex-row gap-6'>
