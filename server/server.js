@@ -7,6 +7,8 @@ import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import roomRouter from './routes/roomRoutes.js';
 import favoritesRouter from './routes/favoritesRoutes.js';
+import compatibilityRouter from './routes/compatibilityRoutes.js';
+
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -24,4 +26,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/favorites', favoritesRouter);
+app.use('/api/compatibility', compatibilityRouter);
+
 app.listen(port, () => console.log(`Server running on port ${port}`));
