@@ -10,6 +10,7 @@ const roomSchema = new mongoose.Schema({
     balcony: { type: Boolean, default: false },
     attachedBathroom: { type: Boolean, default: false },
     users: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
+    pendingRequests: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
     floor: { type: Number, required: true },
     area: { type: Number, required: true }
 
