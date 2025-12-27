@@ -1,5 +1,6 @@
 //This part was implemented by Ryan
 import userModel from '../models/userModel.js';
+import roomModel from '../models/roomModel.js';
 
 export const getUserData = async (req, res) => {
     try {
@@ -38,6 +39,26 @@ export const getUserData = async (req, res) => {
                 foodHabits: user.foodHabits
             }  
         }); 
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const allRooms = await roomModel.find({}, 'users');
+        const usersWithRooms = allRooms.flatMap(room => room.users);
+
+        const users = await userModel.find({
+            _id: { 
+                $ne: userId,               
+                $nin: usersWithRooms       
+            }
+        }).select('-password -verifyOtp -resetOtp');
+        
+        res.json({ success: true, users });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
