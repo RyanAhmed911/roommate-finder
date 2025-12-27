@@ -1,4 +1,4 @@
-import favoritesModel from '../models/favouritesModel.js';
+import favoritesModel from '../models/favoritesModel.js';
 import roomModel from '../models/roomModel.js';
 import mongoose from 'mongoose';
 
