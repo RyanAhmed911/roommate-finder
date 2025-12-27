@@ -10,6 +10,8 @@ import {
     getFavoritesCount
 } from '../controllers/favoritesController.js';
 
+
+
 const favoritesRouter = express.Router();
 favoritesRouter.use(userAuth);
 favoritesRouter.get('/', getFavorites);
