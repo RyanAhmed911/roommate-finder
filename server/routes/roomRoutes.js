@@ -26,11 +26,11 @@ roomRouter.put('/:roomId', userAuth, updateRoom);
 roomRouter.delete('/:roomId', userAuth, deleteRoom);
 roomRouter.post('/:roomId/join', userAuth, joinRoom);
 roomRouter.post('/:roomId/leave', userAuth, leaveRoom);
-roomRouter.post('/request/send', userAuth, sendRequest);
-roomRouter.post('/request/approve', userAuth, approveRequest);
-roomRouter.post('/request/reject', userAuth, rejectRequest);
-roomRouter.post('/request/cancel', userAuth, cancelRequest);
-roomRouter.get('/:roomId/requests', userAuth, getPendingRequests);
+//roomRouter.post('/request/send', userAuth, sendRequest);
+//roomRouter.post('/request/approve', userAuth, approveRequest);
+//roomRouter.post('/request/reject', userAuth, rejectRequest);
+//roomRouter.post('/request/cancel', userAuth, cancelRequest);
+//roomRouter.get('/:roomId/requests', userAuth, getPendingRequests);
 
 export default roomRouter;
 // Prachurzo: From class diagram
