@@ -24,7 +24,7 @@ app.use(cors({origin: allowedOrigins, credentials: true}));
 app.get('/', (req, res) => res.send('API is running...'));
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
-app.use('/api/rooms', roomRouter);
+app.use('/api/room', roomRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/compatibility', compatibilityRouter);
 

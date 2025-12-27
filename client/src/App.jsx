@@ -7,6 +7,9 @@ import EmailVerify from './pages/EmailVerify.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
 import CreateProfile from './pages/CreateProfile.jsx';
 import MyProfile from './pages/MyProfile.jsx';
+import Rooms from './pages/Rooms.jsx';
+import PostRoom from './pages/PostRoom.jsx';
+import Roommates from './pages/Roommates.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -45,6 +48,9 @@ const App = () => {
         <Route path='/reset-password' element={<ResetPassword />} /> {/*added by Ryan*/}
         <Route path='/create-profile' element={<CreateProfile />}/> {/*added by Ryan*/}
         <Route path='/my-profile' element={<MyProfile />}/> {/*added by Ryan*/}
+        <Route path='/rooms' element={<Rooms />} /> 
+        <Route path='/post-room' element={<PostRoom />} /> 
+        <Route path='/roommates' element={<Roommates />} />
       </Routes>
     </div>
   )
