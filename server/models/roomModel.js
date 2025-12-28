@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Prachurzo: From class diagram
+// Updated schema to include roommate preferences
 const roomSchema = new mongoose.Schema({
     location: { type: String, required: true },
     rent: { type: Number, required: true },
@@ -12,12 +12,21 @@ const roomSchema = new mongoose.Schema({
     users: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
     pendingRequests: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
     floor: { type: Number, required: true },
-    area: { type: Number, required: true }
-
+    area: { type: Number, required: true },
+    
+    personalityType: { type: String, default: '' },
+    hobbies: { type: [String], default: [] },
+    foodHabits: { type: String, default: '' },
+    sleepSchedule: { type: String, default: '' },
+    cleanlinessLevel: { type: String, default: '' },
+    noiseTolerance: { type: String, default: '' },
+    medicalConditions: { type: [String], default: [] },
+    smoker: { type: Boolean, default: false },
+    drinking: { type: Boolean, default: false },
+    visitors: { type: Boolean, default: false },
+    petsAllowed: { type: Boolean, default: false }
 });
 
-// Prachurzo: From class diagram 
 const roomModel = mongoose.models.room || mongoose.model('room', roomSchema);
 
 export default roomModel;
-
