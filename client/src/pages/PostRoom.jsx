@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { AppContent } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom'
-import api from '../api' // ✅ uses your axios instance (baseURL + withCredentials)
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const PostRoom = () => {
+    const { backendUrl } = useContext(AppContent)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
 
@@ -40,7 +43,7 @@ const PostRoom = () => {
         if (loading) return
 
         if (!location || !rent || !capacity || !floor || !area) {
-            alert("Please fill up all Room Details fields.")
+            toast.error("Please fill up all Room Details fields.")
             return
         }
 
@@ -51,6 +54,8 @@ const PostRoom = () => {
         const medicalArray = medicalConditions.split(',').map(m => m.trim()).filter(m => m)
 
         try {
+            axios.defaults.withCredentials = true
+            
             // ✅ Send ALL fields including preferences
             const payload = {
                 location,
@@ -74,21 +79,17 @@ const PostRoom = () => {
                 petsAllowed
             }
 
-            const res = await api.post('/room/create', payload)
+            const { data } = await axios.post(backendUrl + '/api/room/create', payload)
 
-            if (res.data?.success) {
-                alert('Room posted successfully!')
+            if (data.success) {
+                toast.success('Room posted successfully!')
                 navigate('/rooms')
             } else {
-                alert(res.data?.message || 'Failed to post room')
+                toast.error(data.message)
             }
         } catch (err) {
             console.error(err)
-            const msg =
-                err?.response?.data?.message ||
-                err?.message ||
-                'Network error while posting room'
-            alert(msg)
+            toast.error(err.message || 'Network error while posting room')
         } finally {
             setLoading(false)
         }
