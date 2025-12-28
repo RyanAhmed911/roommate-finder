@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { assets } from '../assets/assets'   
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AppContent } from '../context/AppContext';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -9,6 +9,7 @@ const Navbar = () => {
 
   {/*added by Nusayba*/}
   const navigate = useNavigate();
+  const location = useLocation();
   const {userData, backendUrl, setUserData, setIsLoggedin} = useContext(AppContent)
   
   const sendVerificationOtp = async ()=>{
@@ -44,8 +45,37 @@ const Navbar = () => {
   
   {/*added by Ryan, Modified by Nusayba*/}
   return (
-    <div className="w-full flex justify-between items-center p-2 sm:p-2 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
+    <div className="w-full flex justify-between items-center p-4 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
       <img onClick={() => navigate('/')} src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48 cursor-pointer"/>
+      
+      {/* Navigation Menu - Only show when logged in */}
+      {userData && (
+        <div className="hidden md:flex items-center gap-2">
+
+          <button 
+            onClick={() => navigate('/post-room')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              location.pathname === '/post-room' 
+                ? 'bg-indigo-600 text-white' 
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}>
+            Post Room
+          </button>
+          
+            {/* Modified by Prachurzo */}
+          <button 
+            onClick={() => navigate('/my-posts')}
+            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              location.pathname === '/my-posts' 
+                ? 'bg-indigo-600 text-white' 
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}>
+            My Posts
+          </button>
+
+        </div>
+      )}
+
       {userData ?
       <div className="flex items-center gap-3">
         <span className="font-medium text-gray-800 hidden sm:block text-lg sm:text-xl">Hi, {userData.name}</span>
@@ -80,3 +110,5 @@ const Navbar = () => {
 }
 
 export default Navbar
+
+

@@ -14,7 +14,7 @@ import ViewProfile from './pages/ViewProfile.jsx';
 import MyRoom from './pages/MyRoom.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import MyPosts from './pages/MyPosts.jsx'
 //Changed by Ryan
 const App = () => {
   const navigate = useNavigate();
@@ -40,6 +40,8 @@ const App = () => {
   }, [isLoggedin, userData, navigate, location.pathname]);
 //Changed by Ryan
 
+
+
   return (
     <div> 
        <ToastContainer/>  {/*added by Nusayba*/}
@@ -53,6 +55,7 @@ const App = () => {
         <Route path='/rooms' element={<Rooms />} /> 
         <Route path='/post-room' element={<PostRoom />} /> 
         <Route path='/roommates' element={<Roommates />} />
+        <Route path="/my-posts" element={<MyPosts />} />
         <Route path='/view-profile/:id' element={<ViewProfile />}/>
         <Route path='/my-room' element={<MyRoom />}/>
       </Routes>
