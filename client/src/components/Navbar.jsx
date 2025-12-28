@@ -45,37 +45,9 @@ const Navbar = () => {
   
   {/*added by Ryan, Modified by Nusayba*/}
   return (
-    <div className="w-full flex justify-between items-center p-4 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
+    <div className="w-full flex justify-between items-center py-2 px-4 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
       <img onClick={() => navigate('/')} src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48 cursor-pointer"/>
       
-      {/* Navigation Menu - Only show when logged in */}
-      {userData && (
-        <div className="hidden md:flex items-center gap-2">
-
-          <button 
-            onClick={() => navigate('/post-room')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              location.pathname === '/post-room' 
-                ? 'bg-indigo-600 text-white' 
-                : 'text-slate-700 hover:bg-slate-100'
-            }`}>
-            Post Room
-          </button>
-          
-            {/* Modified by Prachurzo */}
-          <button 
-            onClick={() => navigate('/my-posts')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              location.pathname === '/my-posts' 
-                ? 'bg-indigo-600 text-white' 
-                : 'text-slate-700 hover:bg-slate-100'
-            }`}>
-            My Posts
-          </button>
-
-        </div>
-      )}
-
       {userData ?
       <div className="flex items-center gap-3">
         <span className="font-medium text-gray-800 hidden sm:block text-lg sm:text-xl">Hi, {userData.name}</span>
@@ -92,7 +64,9 @@ const Navbar = () => {
                 {!userData.isAccountVerified &&
                 <li onClick= {sendVerificationOtp} className='py-1 px-2 hover:bg-indigo-200 cursor-pointer'>Verify Email</li>}
                 <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
-                <li onClick={() => navigate('/my-room')} className='py-2 px-3 hover:bg-indigo-400 cursor-pointer'>My Room</li>
+                <li onClick={() => navigate('/my-room')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Room</li>
+                <li onClick={() => navigate('/my-posts')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Posts</li>
+                
                 <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
             </ul>
             </div>
@@ -110,5 +84,3 @@ const Navbar = () => {
 }
 
 export default Navbar
-
-
