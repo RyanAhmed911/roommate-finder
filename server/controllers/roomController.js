@@ -1,10 +1,30 @@
 import roomModel from '../models/roomModel.js';
 import mongoose from 'mongoose';
 
-// Create a new room
 export const createRoom = async (req, res) => {
     try {
-        const { location, rent, capacity, balcony, attachedBathroom, floor, area } = req.body;
+        const { 
+            location, 
+            rent, 
+            capacity, 
+            balcony, 
+            attachedBathroom, 
+            floor, 
+            area,
+            // New preference fields
+            personalityType,
+            hobbies,
+            foodHabits,
+            sleepSchedule,
+            cleanlinessLevel,
+            noiseTolerance,
+            medicalConditions,
+            smoker,
+            drinking,
+            visitors,
+            petsAllowed
+        } = req.body;
+        
         const userId = req.userId; 
 
         const RoomID = `ROOM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -18,8 +38,20 @@ export const createRoom = async (req, res) => {
             attachedBathroom: attachedBathroom || false,
             floor,
             area,
-            users: [userId], 
-            status: true 
+            users: [userId],
+            status: true,
+            // Add preferences
+            personalityType: personalityType || '',
+            hobbies: hobbies || [],
+            foodHabits: foodHabits || '',
+            sleepSchedule: sleepSchedule || '',
+            cleanlinessLevel: cleanlinessLevel || '',
+            noiseTolerance: noiseTolerance || '',
+            medicalConditions: medicalConditions || [],
+            smoker: smoker || false,
+            drinking: drinking || false,
+            visitors: visitors || false,
+            petsAllowed: petsAllowed || false
         });
 
         await newRoom.save();
@@ -29,41 +61,41 @@ export const createRoom = async (req, res) => {
     }
 };
 
+// ✅ Updated getAvailableRooms to populate preferences
+export const getAvailableRooms = async (req, res) => {
+    try {
+        const rooms = await roomModel.find({ status: true }).populate('users', 'name email image');
+        res.json({ success: true, rooms });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
 
 export const getAllRooms = async (req, res) => {
     try {
-        const rooms = await roomModel.find().populate('users', 'name email gender age');
+        const rooms = await roomModel.find().populate('users', 'name email gender age image');
         res.json({ success: true, rooms });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
 };
-
-
-export const getAvailableRooms = async (req, res) => {
-    try {
-        const rooms = await roomModel.find({ status: true }).populate('users', 'name email');
-        res.json({ success: true, rooms });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
-};
-
 
 export const getRoomById = async (req, res) => {
     try {
-        const { roomId } = req.params;
-        const room = await roomModel.findById(roomId).populate('users', 'name email hobbies gender age smoker');
+        const { roomId } = req.params
 
-        if (!room) {
-            return res.json({ success: false, message: 'Room not found' });
-        }
+        const room = await roomModel.findById(roomId).populate(
+            'users',
+            'name email gender age institution image'
+        )
 
-        res.json({ success: true, room });
+        if (!room) return res.json({ success: false, message: 'Room not found' })
+
+        res.json({ success: true, room })
     } catch (error) {
-        res.json({ success: false, message: error.message });
+        res.json({ success: false, message: error.message })
     }
-};
+}
 
 export const searchRooms = async (req, res) => {
     try {
@@ -78,7 +110,7 @@ export const searchRooms = async (req, res) => {
         if (attachedBathroom) filter.attachedBathroom = attachedBathroom === 'true';
         if (minArea) filter.area = { $gte: Number(minArea) };
 
-        const rooms = await roomModel.find(filter).populate('users', 'name email');
+        const rooms = await roomModel.find(filter).populate('users', 'name email image');
         res.json({ success: true, rooms });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -166,7 +198,6 @@ export const joinRoom = async (req, res) => {
     }
 };
 
-
 export const leaveRoom = async (req, res) => {
     try {
         const { roomId } = req.params;
@@ -184,7 +215,6 @@ export const leaveRoom = async (req, res) => {
 
         room.users = room.users.filter(user => user.toString() !== userId);
         
-
         if (room.users.length < room.capacity) {
             room.status = true;
         }
@@ -196,12 +226,11 @@ export const leaveRoom = async (req, res) => {
     }
 };
 
-
 export const getUserRooms = async (req, res) => {
     try {
         const userId = req.userId;
         
-        const rooms = await roomModel.find({ users: userId }).populate('users', 'name email');
+        const rooms = await roomModel.find({ users: userId }).populate('users', 'name email image');
         res.json({ success: true, rooms });
     } catch (error) {
         res.json({ success: false, message: error.message });
