@@ -11,7 +11,7 @@ export const createRoom = async (req, res) => {
             attachedBathroom, 
             floor, 
             area,
-            // New preference fields
+            status,
             personalityType,
             hobbies,
             foodHabits,
@@ -39,8 +39,7 @@ export const createRoom = async (req, res) => {
             floor,
             area,
             users: [userId],
-            status: true,
-            // Add preferences
+            status: status !== undefined ? status : true,
             personalityType: personalityType || '',
             hobbies: hobbies || [],
             foodHabits: foodHabits || '',
@@ -61,10 +60,9 @@ export const createRoom = async (req, res) => {
     }
 };
 
-// ✅ Updated getAvailableRooms to populate preferences
 export const getAvailableRooms = async (req, res) => {
     try {
-        const rooms = await roomModel.find({ status: true }).populate('users', 'name email image');
+        const rooms = await roomModel.find({ status: true }).populate('users', 'name email');
         res.json({ success: true, rooms });
     } catch (error) {
         res.json({ success: false, message: error.message });

@@ -46,49 +46,57 @@ export const getUserData = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const userId = req.userId;
+        let userId = null;
+        const { token } = req.cookies;
+        
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+            }
+        }
         
         const { 
-            search, 
+            name, 
+            location, 
+            institution, 
             gender, 
             smoker, 
             drinking, 
             petsAllowed, 
-            status,
-            ageMin,
-            ageMax
+            foodHabits, 
+            cleanlinessLevel, 
+            sleepSchedule, 
+            noiseTolerance, 
+            visitors
         } = req.query;
 
         const allRooms = await roomModel.find({}, 'users');
         const usersWithRooms = allRooms.flatMap(room => room.users);
 
         let query = {
-            _id: { 
-                $ne: userId,               
-                $nin: usersWithRooms       
-            }
+            _id: { $nin: usersWithRooms }
         };
 
+        if (userId) {
+            query._id.$ne = userId;
+        }
+
+        if (name) query.name = { $regex: name, $options: 'i' };
+        if (location) query.location = { $regex: location, $options: 'i' };
+        if (institution) query.institution = { $regex: institution, $options: 'i' };
+
         if (gender) query.gender = gender;
-        if (status) query.status = status;
-        
-        if (smoker !== undefined && smoker !== '') query.smoker = smoker === 'true';
-        if (drinking !== undefined && drinking !== '') query.drinking = drinking === 'true';
-        if (petsAllowed !== undefined && petsAllowed !== '') query.petsAllowed = petsAllowed === 'true';
+        if (foodHabits) query.foodHabits = foodHabits;
+        if (cleanlinessLevel) query.cleanlinessLevel = cleanlinessLevel;
+        if (sleepSchedule) query.sleepSchedule = sleepSchedule;
+        if (noiseTolerance) query.noiseTolerance = noiseTolerance;
 
-        if (ageMin || ageMax) {
-            query.age = {};
-            if (ageMin) query.age.$gte = Number(ageMin);
-            if (ageMax) query.age.$lte = Number(ageMax);
-        }
-
-        if (search) {
-            query.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { location: { $regex: search, $options: 'i' } },
-                { institution: { $regex: search, $options: 'i' } }
-            ];
-        }
+        if (smoker) query.smoker = smoker === 'true';
+        if (drinking) query.drinking = drinking === 'true';
+        if (petsAllowed) query.petsAllowed = petsAllowed === 'true';
+        if (visitors) query.visitors = visitors === 'true';
 
         const users = await userModel.find(query).select('-password -verifyOtp -resetOtp -email');
         

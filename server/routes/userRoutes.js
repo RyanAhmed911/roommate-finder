@@ -6,7 +6,7 @@ import { getUserData, getAllUsers, getUserProfileById, updateUserProfile } from 
 const userRouter = express.Router();
 
 userRouter.get('/data', userAuth, getUserData);
-userRouter.get('/all-users', userAuth, getAllUsers);
+userRouter.get('/all-users', getAllUsers);
 userRouter.get('/:id', userAuth, getUserProfileById);
 userRouter.post('/update-profile', userAuth, updateUserProfile);
 
