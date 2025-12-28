@@ -46,19 +46,77 @@ export const getUserData = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const userId = req.userId;
+        let userId = null;
+        const { token } = req.cookies;
+        
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (error) {
+            }
+        }
+        
+        const { 
+            name, 
+            location, 
+            institution, 
+            gender, 
+            smoker, 
+            drinking, 
+            petsAllowed, 
+            foodHabits, 
+            cleanlinessLevel, 
+            sleepSchedule, 
+            noiseTolerance, 
+            visitors
+        } = req.query;
 
         const allRooms = await roomModel.find({}, 'users');
         const usersWithRooms = allRooms.flatMap(room => room.users);
 
-        const users = await userModel.find({
-            _id: { 
-                $ne: userId,               
-                $nin: usersWithRooms       
-            }
-        }).select('-password -verifyOtp -resetOtp');
+        let query = {
+            _id: { $nin: usersWithRooms }
+        };
+
+        if (userId) {
+            query._id.$ne = userId;
+        }
+
+        if (name) query.name = { $regex: name, $options: 'i' };
+        if (location) query.location = { $regex: location, $options: 'i' };
+        if (institution) query.institution = { $regex: institution, $options: 'i' };
+
+        if (gender) query.gender = gender;
+        if (foodHabits) query.foodHabits = foodHabits;
+        if (cleanlinessLevel) query.cleanlinessLevel = cleanlinessLevel;
+        if (sleepSchedule) query.sleepSchedule = sleepSchedule;
+        if (noiseTolerance) query.noiseTolerance = noiseTolerance;
+
+        if (smoker) query.smoker = smoker === 'true';
+        if (drinking) query.drinking = drinking === 'true';
+        if (petsAllowed) query.petsAllowed = petsAllowed === 'true';
+        if (visitors) query.visitors = visitors === 'true';
+
+        const users = await userModel.find(query).select('-password -verifyOtp -resetOtp -email');
         
         res.json({ success: true, users });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const getUserProfileById = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        const user = await userModel.findById(id).select('-password -verifyOtp -resetOtp -email');
+
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        res.json({ success: true, userData: user });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }

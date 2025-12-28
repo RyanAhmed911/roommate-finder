@@ -10,6 +10,8 @@ import MyProfile from './pages/MyProfile.jsx';
 import Rooms from './pages/Rooms.jsx';
 import PostRoom from './pages/PostRoom.jsx';
 import Roommates from './pages/Roommates.jsx';
+import ViewProfile from './pages/ViewProfile.jsx';
+import MyRoom from './pages/MyRoom.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MyPosts from './pages/MyPosts.jsx'
@@ -54,6 +56,8 @@ const App = () => {
         <Route path='/post-room' element={<PostRoom />} /> 
         <Route path='/roommates' element={<Roommates />} />
         <Route path="/my-posts" element={<MyPosts />} />
+        <Route path='/view-profile/:id' element={<ViewProfile />}/>
+        <Route path='/my-room' element={<MyRoom />}/>
       </Routes>
     </div>
   )
