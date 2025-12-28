@@ -47,18 +47,68 @@ export const getUserData = async (req, res) => {
 export const getAllUsers = async (req, res) => {
     try {
         const userId = req.userId;
+        
+        const { 
+            search, 
+            gender, 
+            smoker, 
+            drinking, 
+            petsAllowed, 
+            status,
+            ageMin,
+            ageMax
+        } = req.query;
 
         const allRooms = await roomModel.find({}, 'users');
         const usersWithRooms = allRooms.flatMap(room => room.users);
 
-        const users = await userModel.find({
+        let query = {
             _id: { 
                 $ne: userId,               
                 $nin: usersWithRooms       
             }
-        }).select('-password -verifyOtp -resetOtp');
+        };
+
+        if (gender) query.gender = gender;
+        if (status) query.status = status;
+        
+        if (smoker !== undefined && smoker !== '') query.smoker = smoker === 'true';
+        if (drinking !== undefined && drinking !== '') query.drinking = drinking === 'true';
+        if (petsAllowed !== undefined && petsAllowed !== '') query.petsAllowed = petsAllowed === 'true';
+
+        if (ageMin || ageMax) {
+            query.age = {};
+            if (ageMin) query.age.$gte = Number(ageMin);
+            if (ageMax) query.age.$lte = Number(ageMax);
+        }
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { location: { $regex: search, $options: 'i' } },
+                { institution: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const users = await userModel.find(query).select('-password -verifyOtp -resetOtp -email');
         
         res.json({ success: true, users });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+export const getUserProfileById = async (req, res) => {
+    try {
+        const { id } = req.params; 
+
+        const user = await userModel.findById(id).select('-password -verifyOtp -resetOtp -email');
+
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        res.json({ success: true, userData: user });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
