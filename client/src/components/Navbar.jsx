@@ -51,15 +51,6 @@ const Navbar = () => {
       {/* Navigation Menu - Only show when logged in */}
       {userData && (
         <div className="hidden md:flex items-center gap-2">
-          <button 
-            onClick={() => navigate('/rooms')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              location.pathname === '/rooms' 
-                ? 'bg-indigo-600 text-white' 
-                : 'text-slate-700 hover:bg-slate-100'
-            }`}>
-            Find Rooms
-          </button>
 
           <button 
             onClick={() => navigate('/post-room')}
@@ -82,15 +73,6 @@ const Navbar = () => {
             My Posts
           </button>
 
-          <button 
-            onClick={() => navigate('/roommates')}
-            className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-              location.pathname === '/roommates' 
-                ? 'bg-indigo-600 text-white' 
-                : 'text-slate-700 hover:bg-slate-100'
-            }`}>
-            Find Roommates
-          </button>
         </div>
       )}
 
