@@ -26,23 +26,37 @@ const Login = () => {
 
       if(state === 'Sign Up'){
         const {data} = await axios.post(backendUrl + '/api/auth/register', {name, email, password})
-  
+         
         if(data.success){
           setIsLoggedin(true)
-          getUserData()
-          navigate('/')
-        }else{
-          toast.error(data.message)
+          await getUserData()
+          if (data.requiresVerification) {
+            toast.success(data.message) 
+            navigate('/email-verify')  
+          } else {
+            navigate('/')
+          }
         }
-      }else{
+
+        else{
+          toast.error(data.message)
+        }}
+      else{
         const {data} = await axios.post(backendUrl + '/api/auth/login', {email, password})
-          
+
         if(data.success){
-        setIsLoggedin(true)
-        getUserData()
-        navigate('/')
-        }else{
-          toast.error(error.message)
+          setIsLoggedin(true)
+          await getUserData()
+          if (data.requiresVerification) {
+            toast.success(data.message) 
+            navigate('/email-verify')  
+          } else {
+            navigate('/')
+            }
+        }
+       
+        else{
+          toast.error(data.message)
         }
        }
     }catch (error) {
@@ -50,10 +64,9 @@ const Login = () => {
     }
   }
   {/*added by Nusayba*/}
-  
-  {/*added by Ryan*/}
+  {/*added by Ryan*/}  
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-gradient-to-br from-blue-200 to-purple-400">
+    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)]">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-40 sm:w-48 cursor-pointer"/>
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
         
