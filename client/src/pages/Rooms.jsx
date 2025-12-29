@@ -22,6 +22,30 @@ const Rooms = () => {
         }
     }
 
+    //added by Nusayba
+    const checkCompatibility = async (roomId) => {
+        try {
+            const { data } = await axios.post(
+                backendUrl + "/api/compatibility/score",
+                {
+                    userId: userData._id,
+                    roomId: roomId
+                },
+                { withCredentials: true }
+            );
+
+            if (data.success) {
+                alert(`Compatibility Score: ${data.compatibilityScore}%`);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error calculating compatibility");
+        }
+    };
+    //added by Nusayba
+
     const handleJoinRequest = async (roomId) => {
         if (!userData) {
             toast.error("Please login to send a request")
@@ -46,6 +70,8 @@ const Rooms = () => {
         fetchRooms()
     }, [])
 
+    //Nusayba: Added compatibility score button
+
     return (
         <div className="min-h-screen bg-slate-50 pt-20">
             <Navbar />
@@ -54,7 +80,13 @@ const Rooms = () => {
                 <p className="text-center text-slate-500 mb-10">Find your next home sweet home.</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {rooms.map((room) => (
+                    
+                    {rooms.map((room) => {
+                        const isOwnRoom = room.users?.some(
+                            u => u?._id === userData?._id || u === userData?._id
+                        );
+
+                        return(
                         <div key={room._id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-xl transition-shadow flex flex-col h-full">
                             <div className="bg-indigo-600 p-4 flex justify-between items-center text-white">
                                 <h3 className="font-bold text-lg">{room.location}</h3>
@@ -122,10 +154,21 @@ const Rooms = () => {
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                         Request to Join
                                     </button>
+
+                                        {!isOwnRoom && (
+                                            <button
+                                                onClick={() => checkCompatibility(room._id)}
+                                                className="w-full bg-purple-600 text-white py-2 rounded-lg"
+                                            >
+                                                Check Compatibility
+                                            </button>
+                                        )}
+
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 

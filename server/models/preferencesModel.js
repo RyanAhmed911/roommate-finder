@@ -1,18 +1,34 @@
 import mongoose from "mongoose";
 
-// Prachurzo: From class diagram
 const preferencesSchema = new mongoose.Schema({
-    smoker: { type: Boolean },
-    personalityType: { type: String },
-    age: { type: Number },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        required: true,
+        unique: true   
+    },
+
+    smoker: Boolean,
+    personalityType: String,
+    age: Number,
     medicalConditions: { type: [String], default: [] },
     institution: { type: [String], default: [] },
-    gender: { type: String },
-    visitors: { type: Boolean },
-    hobbies: { type: [String], default: [] }
+    gender: String,
+    visitors: Boolean,
+    hobbies: { type: [String], default: [] },
+
+    
+    foodHabits: String,
+    sleepSchedule: String,
+    cleanlinessLevel: String,
+    noiseTolerance: String,
+    petsAllowed: Boolean,
+    drinking: Boolean
 });
 
-const preferencesModel = mongoose.models.preferences || mongoose.model('preferences', preferencesSchema);
+const preferencesModel =
+    mongoose.models.preferences || mongoose.model('preferences', preferencesSchema);
 
-// Prachurzo: From class diagram
 export default preferencesModel;
+
+//Fully updated by Nusayba

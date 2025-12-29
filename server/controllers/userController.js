@@ -1,6 +1,8 @@
 //This part was implemented by Ryan
 import userModel from '../models/userModel.js';
 import roomModel from '../models/roomModel.js';
+import preferencesModel from '../models/preferencesModel.js';
+
 
 export const getUserData = async (req, res) => {
     try {
@@ -177,6 +179,31 @@ export const updateUserProfile = async (req, res) => {
             isProfileCompleted: true
         });
 
+        //added by Nusayba
+        await preferencesModel.findOneAndUpdate(
+            { user: userId },           
+            {
+                user: userId,
+                hobbies,
+                age,
+                smoker,
+                personalityType,
+                medicalConditions,
+                institution,
+                gender,
+                visitors,
+                petsAllowed,
+                drinking,
+                cleanlinessLevel,
+                sleepSchedule,
+                noiseTolerance,
+                foodHabits
+            },
+            { upsert: true, new: true }  
+        );
+        //added by Nusayba
+
+
         if (!user) {
             return res.json({ success: false, message: 'User not found' });
         }
@@ -186,4 +213,6 @@ export const updateUserProfile = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
+
+
 //This part was implemented by Ryan
