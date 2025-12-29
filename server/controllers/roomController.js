@@ -4,25 +4,10 @@ import mongoose from 'mongoose';
 export const createRoom = async (req, res) => {
     try {
         const { 
-            location, 
-            rent, 
-            capacity, 
-            balcony, 
-            attachedBathroom, 
-            floor, 
-            area,
-            status,
-            personalityType,
-            hobbies,
-            foodHabits,
-            sleepSchedule,
-            cleanlinessLevel,
-            noiseTolerance,
-            medicalConditions,
-            smoker,
-            drinking,
-            visitors,
-            petsAllowed
+            location, rent, capacity, balcony, attachedBathroom, floor, area, status,
+            roomType, furnishingStatus, wifi, refrigerator, kitchenAccess, parking, elevator, generator, securityGuard,
+            personalityType, hobbies, foodHabits, sleepSchedule, cleanlinessLevel, noiseTolerance, medicalConditions,
+            smoker, drinking, visitors, petsAllowed
         } = req.body;
         
         const userId = req.userId; 
@@ -30,16 +15,22 @@ export const createRoom = async (req, res) => {
         const RoomID = `ROOM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
         const newRoom = new roomModel({
-            location,
-            rent,
-            capacity,
-            RoomID,
+            location, rent, capacity, RoomID, floor, area,
             balcony: balcony || false,
             attachedBathroom: attachedBathroom || false,
-            floor,
-            area,
             users: [userId],
             status: status !== undefined ? status : true,
+            
+            roomType: roomType || 'Shared',
+            furnishingStatus: furnishingStatus || 'Unfurnished',
+            wifi: wifi || false,
+            refrigerator: refrigerator || false,
+            kitchenAccess: kitchenAccess || false,
+            parking: parking || false,
+            elevator: elevator || false,
+            generator: generator || false,
+            securityGuard: securityGuard || false,
+
             personalityType: personalityType || '',
             hobbies: hobbies || [],
             foodHabits: foodHabits || '',
