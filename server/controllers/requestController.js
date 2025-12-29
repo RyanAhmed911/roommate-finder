@@ -2,7 +2,6 @@ import requestModel from '../models/requestModel.js';
 import roomModel from '../models/roomModel.js';
 import userModel from '../models/userModel.js';
 
-// 1. Send an Invite (Room Owner -> Potential Roommate)
 export const sendInvite = async (req, res) => {
     try {
         const { receiverId } = req.body; 
@@ -23,7 +22,6 @@ export const sendInvite = async (req, res) => {
             return res.json({ success: false, message: "User not found." });
         }
 
-        // Check if receiver is already in a room
         const receiverRoom = await roomModel.findOne({ users: receiverId });
         if (receiverRoom) {
             return res.json({ success: false, message: "This user is already in a room." });
@@ -55,7 +53,6 @@ export const sendInvite = async (req, res) => {
     }
 };
 
-// 2. Request to Join (User -> Room Owner)
 export const requestToJoin = async (req, res) => {
     try {
         const { roomId } = req.body; 
@@ -70,14 +67,12 @@ export const requestToJoin = async (req, res) => {
             return res.json({ success: false, message: "This room is already full." });
         }
 
-        // Identify Receiver (The Room Owner)
         const ownerId = room.users[0]; 
         
-        if (room.users.includes(senderId)) {
+        if (room.users.some(id => id.toString() === senderId)) {
             return res.json({ success: false, message: "You are already in this room." });
         }
 
-        // Check if user is already in another room
         const userExistingRoom = await roomModel.findOne({ users: senderId });
         if (userExistingRoom) {
              return res.json({ success: false, message: "You are already in a room. Leave it first." });
@@ -109,7 +104,6 @@ export const requestToJoin = async (req, res) => {
     }
 }
 
-// 3. Get My Received Invites/Requests
 export const getMyRequests = async (req, res) => {
     try {
         const userId = req.userId;
@@ -125,11 +119,10 @@ export const getMyRequests = async (req, res) => {
     }
 };
 
-// 4. Respond to Request (Accept/Reject)
 export const respondToRequest = async (req, res) => {
     try {
         const { requestId, action } = req.body; 
-        const userId = req.userId; // The person clicking Accept/Reject
+        const userId = req.userId; 
 
         const request = await requestModel.findById(requestId);
         if (!request) {
@@ -156,16 +149,13 @@ export const respondToRequest = async (req, res) => {
                 return res.json({ success: false, message: "Room is now full." });
             }
 
-            // --- FIXED LOGIC HERE ---
-            // If the person accepting (userId) is already in the room (e.g., Owner accepting a join request),
-            // then we add the SENDER.
-            // If the person accepting is NOT in the room (e.g., User accepting an invite),
-            // then we add the RECEIVER (userId).
+            const isAccepterInRoom = room.users.some(id => id.toString() === userId);
             
-            const userToAdd = room.users.includes(userId) ? request.senderId : userId;
+            const userToAdd = isAccepterInRoom ? request.senderId : userId;
 
-            // Double check to avoid duplicates
-            if (!room.users.includes(userToAdd)) {
+            const isUserAlreadyIn = room.users.some(id => id.toString() === userToAdd.toString());
+            
+            if (!isUserAlreadyIn) {
                 room.users.push(userToAdd);
             }
             
@@ -177,12 +167,11 @@ export const respondToRequest = async (req, res) => {
             request.status = 'accepted';
             await request.save();
 
-            // Clear other pending requests for the new member
             await requestModel.updateMany(
                 { 
                     $or: [
-                        { receiverId: userToAdd, status: 'pending' }, // Invites sent TO them
-                        { senderId: userToAdd, status: 'pending' }    // Requests sent BY them
+                        { receiverId: userToAdd, status: 'pending' }, 
+                        { senderId: userToAdd, status: 'pending' }    
                     ]
                 },
                 { status: 'rejected' }

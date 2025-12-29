@@ -13,7 +13,6 @@ const MyRoom = () => {
     const [activeTool, setActiveTool] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
 
-    // Form States
     const [location, setLocation] = useState('')
     const [rent, setRent] = useState('')
     const [capacity, setCapacity] = useState(1)
@@ -22,7 +21,6 @@ const MyRoom = () => {
     const [balcony, setBalcony] = useState(false)
     const [attachedBathroom, setAttachedBathroom] = useState(false)
     
-    // New States
     const [roomType, setRoomType] = useState('Shared')
     const [furnishingStatus, setFurnishingStatus] = useState('Unfurnished')
     const [wifi, setWifi] = useState(false)
@@ -60,7 +58,6 @@ const MyRoom = () => {
         setBalcony(room.balcony)
         setAttachedBathroom(room.attachedBathroom)
         
-        // Load new fields
         setRoomType(room.roomType || 'Shared')
         setFurnishingStatus(room.furnishingStatus || 'Unfurnished')
         setWifi(room.wifi || false)
@@ -106,9 +103,45 @@ const MyRoom = () => {
                 toast.success("Room Deleted")
                 setRoom(null)
                 setIsEditing(false)
-                // Reset form
-                setLocation(''); setRent(''); setCapacity(1); setFloor(''); setArea(''); 
-                setBalcony(false); setAttachedBathroom(false);
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    const handleLeaveRoom = async () => {
+        if (!window.confirm("Are you sure you want to leave this room?")) return;
+
+        try {
+            axios.defaults.withCredentials = true
+            const { data } = await axios.post(backendUrl + `/api/room/${room._id}/leave`)
+
+            if (data.success) {
+                toast.success("You left the room")
+                setRoom(null)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    const handleRemoveUser = async (userId) => {
+        if (!window.confirm("Remove this user from the room?")) return;
+
+        try {
+            axios.defaults.withCredentials = true
+            const { data } = await axios.post(backendUrl + '/api/room/remove-user', { 
+                roomId: room._id, 
+                userIdToRemove: userId 
+            })
+
+            if (data.success) {
+                toast.success("User removed")
+                setRoom(data.room) 
             } else {
                 toast.error(data.message)
             }
@@ -142,7 +175,6 @@ const MyRoom = () => {
         if (userData) fetchMyRoom()
     }, [userData])
 
-    // Helper Component for Checkboxes
     const AmenityCheckbox = ({ label, checked, setChecked }) => (
         <label className="flex items-center gap-2 cursor-pointer p-2 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors">
             <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} className="w-4 h-4 accent-indigo-500"/>
@@ -165,7 +197,6 @@ const MyRoom = () => {
                         </div>
 
                         <form onSubmit={handleCreatePrivateRoom} className="flex flex-col gap-5">
-                            {/* Basic Info */}
                             <div>
                                 <label className="block text-slate-600 mb-1.5 text-sm font-medium">Location</label>
                                 <input className="w-full bg-slate-50 border border-slate-200 p-3 rounded-lg outline-none focus:border-indigo-500" type="text" placeholder="e.g. Uttara, Sector 4" value={location} onChange={e => setLocation(e.target.value)} required />
@@ -248,7 +279,6 @@ const MyRoom = () => {
                             
                             <div className="lg:col-span-2 flex flex-col gap-6">
                                 
-                                {/* Apartment Details Card */}
                                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative">
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -342,7 +372,7 @@ const MyRoom = () => {
                                     </h2>
                                     
                                     <div className="space-y-3">
-                                        {room.users.map((user) => (
+                                        {room.users.map((user, index) => (
                                             <div key={user._id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
@@ -357,9 +387,21 @@ const MyRoom = () => {
                                                         <p className="text-xs text-slate-500">{user.email}</p>
                                                     </div>
                                                 </div>
-                                                <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                                                    Active
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                                                        Active
+                                                    </span>
+                                                    {/* REMOVE BUTTON (Only for Owner, not on themselves) */}
+                                                    {isOwner && String(user._id) !== String(userData._id) && (
+                                                        <button 
+                                                            onClick={() => handleRemoveUser(user._id)}
+                                                            className="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                                            title="Remove User"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -417,21 +459,25 @@ const MyRoom = () => {
                                     </div>
                                 </div>
 
-                                {isOwner && (
-                                    <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
-                                        <h3 className="text-lg font-bold text-red-600 mb-2">Danger Zone</h3>
+                                {/* Danger Zone: Delete Room OR Leave Room */}
+                                <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
+                                    <h3 className="text-lg font-bold text-red-600 mb-2">Danger Zone</h3>
+                                    {isOwner ? (
                                         <button onClick={handleDeleteRoom} className="w-full py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-600 hover:text-white transition-colors">
                                             Delete Room
                                         </button>
-                                    </div>
-                                )}
+                                    ) : (
+                                        <button onClick={handleLeaveRoom} className="w-full py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 hover:bg-red-600 hover:text-white transition-colors">
+                                            Leave Room
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Modals */}
             {activeTool === 'expenses' && room && (
                 <Expenses roomId={room._id} onClose={() => setActiveTool(null)} />
             )}
