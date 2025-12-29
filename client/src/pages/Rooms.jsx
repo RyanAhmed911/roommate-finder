@@ -22,6 +22,30 @@ const Rooms = () => {
         }
     }
 
+    //added by Nusayba
+    const checkCompatibility = async (roomId) => {
+        try {
+            const { data } = await axios.post(
+                backendUrl + "/api/compatibility/score",
+                {
+                    userId: userData._id,
+                    roomId: roomId
+                },
+                { withCredentials: true }
+            );
+
+            if (data.success) {
+                alert(`Compatibility Score: ${data.compatibilityScore}%`);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error calculating compatibility");
+        }
+    };
+    //added by Nusayba
+
     const handleJoinRequest = async (roomId) => {
         if (!userData) {
             toast.error("Please login to send a request")
@@ -121,6 +145,12 @@ const Rooms = () => {
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                         Request to Join
+                                    </button>
+                                    <button
+                                        onClick={() => checkCompatibility(room._id)}
+                                        className="w-full bg-purple-600 text-white py-2 rounded-lg"
+                                        >
+                                        Check Compatibility
                                     </button>
                                 </div>
                             </div>
