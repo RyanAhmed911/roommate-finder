@@ -9,6 +9,7 @@ import {
     deleteRoom,
     joinRoom,
     leaveRoom,
+    removeUser,
     searchRooms,
     getAvailableRooms,
     getUserRooms
@@ -26,6 +27,7 @@ roomRouter.put('/:roomId', userAuth, updateRoom);
 roomRouter.delete('/:roomId', userAuth, deleteRoom);
 roomRouter.post('/:roomId/join', userAuth, joinRoom);
 roomRouter.post('/:roomId/leave', userAuth, leaveRoom);
+roomRouter.post('/remove-user', userAuth, removeUser);
 //roomRouter.post('/request/send', userAuth, sendRequest);
 //roomRouter.post('/request/approve', userAuth, approveRequest);
 //roomRouter.post('/request/reject', userAuth, rejectRequest);
