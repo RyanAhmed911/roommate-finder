@@ -1,28 +1,26 @@
 //Implemented by Nusayba
-
 import userModel from '../models/userModel.js';
-import preferencesModel from '../models/preferencesModel.js';
+import roomModel from '../models/roomModel.js';
 import { calculateCompatibility } from '../services/compatibilityService.js';
 
 export const getCompatibilityScore = async (req, res) => {
     try {
-        const { targetUserId } = req.body;
-        const currentUserId = req.user.id; 
+        const { userId, roomId } = req.body;
 
-       
-        const preferences = await preferencesModel.findOne({ user: currentUserId });
-
-        
-        const targetUser = await userModel.findById(targetUserId);
-
-        if (!preferences || !targetUser) {
-            return res.json({ success: false, message: 'Data missing' });
+        if (!userId || !roomId) {
+            return res.json({ success: false, message: 'Missing IDs' });
         }
 
-        
-        const score = calculateCompatibility(targetUser, preferences);
+        const user = await userModel.findById(userId);
+        const room = await roomModel.findById(roomId);
 
-        return res.json({
+        if (!user || !room) {
+            return res.json({ success: false, message: 'User or Room not found' });
+        }
+
+        const score = calculateCompatibility(user, room);
+
+        res.json({
             success: true,
             compatibilityScore: score
         });
