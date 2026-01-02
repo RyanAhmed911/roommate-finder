@@ -18,6 +18,8 @@ import ChoresPage from './pages/ChoresPage.jsx'
 import GroupChat from './pages/GroupChat.jsx'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import FavoriteRooms from './pages/FavoriteRooms.jsx'
+import FavoriteRoommates from './pages/FavoriteRoommates.jsx'
 
 const App = () => {
   const navigate = useNavigate()
@@ -60,6 +62,8 @@ const App = () => {
         <Route path='/room/expenses' element={<ExpensesPage />} />
         <Route path='/room/chores' element={<ChoresPage />} />
         <Route path='/room/groupchat' element={<GroupChat />} />
+        <Route path='/favorite-rooms' element={<FavoriteRooms />} />
+        <Route path='/favorite-roommates' element={<FavoriteRoommates />} />
       </Routes>
     </div>
   )

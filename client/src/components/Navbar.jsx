@@ -66,6 +66,8 @@ const Navbar = () => {
                 <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
                 <li onClick={() => navigate('/my-room')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Room</li>
                 <li onClick={() => navigate('/my-posts')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Posts</li>
+                <li onClick={() => navigate('/favorite-rooms')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>Favorite Rooms</li>
+                <li onClick={() => navigate('/favorite-roommates')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>Favorite Roommates</li>
                 
                 <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
             </ul>
