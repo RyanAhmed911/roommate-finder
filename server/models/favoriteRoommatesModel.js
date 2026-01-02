@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 
-// Prachurzo: From class diagram
-const favoritesSchema = new mongoose.Schema({
 
-    posts: { type: [mongoose.Schema.Types.ObjectId], ref: 'room', default: [] },
+const favoriteRoommatesSchema = new mongoose.Schema({
+    roommates: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
+    posts: { type: [mongoose.Schema.Types.ObjectId], ref: 'user' }, // backward compat
     favoritesID: { type: String, required: true, unique: true }
 });
 
-const favoritesModel = mongoose.models.favorites || mongoose.model('favorites', favoritesSchema);
+const favoriteRoommatesModel =
+    mongoose.models.favoriteRoommates ||
+    mongoose.model('favoriteRoommates', favoriteRoommatesSchema);
 
-export default favoritesModel;
+export default favoriteRoommatesModel;
