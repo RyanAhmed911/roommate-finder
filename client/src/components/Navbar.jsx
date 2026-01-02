@@ -1,143 +1,86 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { AppContent } from '../context/AppContext'
-import Navbar from '../components/Navbar'
-import axios from 'axios'
-import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router-dom'
+import React, { useContext } from 'react'
+import { assets } from '../assets/assets'   
+import { useNavigate, useLocation } from 'react-router-dom'
+import { AppContent } from '../context/AppContext';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
-const Rooms = () => {
-    const { backendUrl, userData } = useContext(AppContent)
-    const navigate = useNavigate()
-    const [rooms, setRooms] = useState([])
-    const [selectedRoom, setSelectedRoom] = useState(null)
+const Navbar = () => {
 
-    const fetchRooms = async () => {
-        try {
-            const { data } = await axios.get(backendUrl + '/api/room/available')
-            if (data.success) {
-                setRooms(data.rooms)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
+  {/*added by Nusayba*/}
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {userData, backendUrl, setUserData, setIsLoggedin} = useContext(AppContent)
+  
+  const sendVerificationOtp = async ()=>{
+    try {
+      axios.defaults.withCredentials = true;
+
+      const {data} = await axios.post(backendUrl + '/api/auth/send-verify-otp')
+
+      if(data.success){
+        navigate('/email-verify')
+        toast.success(data.message)
+      }else{
+        toast.error(data.message)
+      }
+
+    } catch (error) {
+      toast.error(error.message)
     }
+  }
+  const logout = async ()=>{
+    try {
+      axios.defaults.withCredentials = true
+      const { data } = await axios.post(backendUrl + '/api/auth/logout')
+      data.success && setIsLoggedin(false)
+      data.success && setUserData(false)
+      navigate('/')
 
-    const addToFavorites = async (roomId) => {
-        try {
-            axios.defaults.withCredentials = true
-            const { data } = await axios.post(
-                backendUrl + '/api/favorites/add',
-                { roomId }
-            )
-
-            if (!data.success) {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
+    } catch (error) {
+      toast.error(error.message)
     }
-
-    //added by Nusayba
-    const checkCompatibility = async (roomId) => {
-        try {
-            const { data } = await axios.post(
-                backendUrl + "/api/compatibility/score",
-                {
-                    userId: userData._id,
-                    roomId: roomId
-                },
-                { withCredentials: true }
-            );
-
-            if (data.success) {
-                alert(`Compatibility Score: ${data.compatibilityScore}%`);
-            } else {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error calculating compatibility");
-        }
-    };
-    //added by Nusayba
-
-    const handleJoinRequest = async (roomId) => {
-        if (!userData) {
-            toast.error("Please login to send a request")
-            return
-        }
-
-        try {
-            axios.defaults.withCredentials = true
-            const { data } = await axios.post(backendUrl + '/api/request/join', { roomId })
-
-            if (data.success) {
-                toast.success(data.message)
-            } else {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
-        }
-    }
-
-    useEffect(() => {
-        fetchRooms()
-    }, [])
-
-    return (
-        <div className="min-h-screen bg-slate-50 pt-20">
-            <Navbar />
-            <div className="container mx-auto px-4 py-10">
-                <h1 className="text-3xl font-bold text-slate-800 mb-2 text-center">Available Rooms</h1>
-                <p className="text-center text-slate-500 mb-10">Find your next home sweet home.</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {rooms.map((room) => {
-                        const isOwnRoom = room.users?.some(
-                            u => u?._id === userData?._id || u === userData?._id
-                        );
-
-                        return (
-                            <div key={room._id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-xl transition-shadow flex flex-col h-full">
-                                <div className="bg-indigo-600 p-4 flex justify-between items-center text-white">
-                                    <h3 className="font-bold text-lg">{room.location}</h3>
-
-                                    <div className="flex items-center gap-2">
-                                      
-                                        <button
-                                            onClick={() => addToFavorites(room._id)}
-                                            className="p-1 hover:bg-white/20 rounded transition-colors"
-                                            title="Add to favorites"
-                                        >
-                                            <svg className="w-5 h-5 star-filled" viewBox="0 0 24 24">
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                                                />
-                                            </svg>
-                                        </button>
-
-                                        <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">
-                                            ৳ {room.rent}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* EVERYTHING BELOW IS UNCHANGED */}
-                                <div className="p-6 flex flex-col flex-1">
-                                    {/* unchanged content */}
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
+  }
+  {/*added by Nusayba*/}
+  
+  {/*added by Ryan, Modified by Nusayba*/}
+  return (
+    <div className="w-full flex justify-between items-center py-2 px-4 sm:px-24 absolute top-0 z-50 bg-white shadow-md">
+      <img onClick={() => navigate('/')} src={assets.logo} alt="Home Harmony Logo" className="w-40 sm:w-48 cursor-pointer"/>
+      
+      {userData ?
+      <div className="flex items-center gap-3">
+        <span className="font-medium text-gray-800 hidden sm:block text-lg sm:text-xl">Hi, {userData.name}</span>
+        <div className = 'relative group cursor-pointer'>
+            <div className='w-9 h-9 flex justify-center items-center rounded-full bg-black text-white overflow-hidden border border-gray-300'>
+                {userData.image ? (
+                    <img src={userData.image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                    userData.name[0].toUpperCase()
+                )}
+            </div>
+            <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-white rounded pt-10'>
+            <ul className ='list-none m-0 p-2 bg-indigo-500 text-sm'>
+                {!userData.isAccountVerified &&
+                <li onClick= {sendVerificationOtp} className='py-1 px-2 hover:bg-indigo-200 cursor-pointer'>Verify Email</li>}
+                <li onClick={() => navigate('/my-profile')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Profile</li>
+                <li onClick={() => navigate('/my-room')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Room</li>
+                <li onClick={() => navigate('/my-posts')} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer'>My Posts</li>
+                
+                <li onClick={logout} className='py-1 px-2 hover:bg-indigo-400 cursor-pointer pr-10'>Logout</li>
+            </ul>
             </div>
         </div>
-    )
+      </div>
+      : <button 
+          onClick={() => navigate('/login')} 
+          className="flex items-center gap-2 border border-gray-500 rounded-full px-6 py-2 text-gray-800 hover:bg-gray-100 transition-all">
+          Login 
+          <img src={assets.arrow_icon} alt="" />
+        </button>
+    }
+    </div>
+  )
 }
 
-export default Rooms
+export default Navbar
