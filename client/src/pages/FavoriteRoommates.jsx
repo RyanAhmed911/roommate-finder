@@ -19,9 +19,12 @@ const FavouriteRoommates = () => {
             if (data.success) {
                 const usersMap = {}
 
+                // ✅ FIX: room.users is an ARRAY
                 data.rooms.forEach(room => {
-                    if (room.users) {
-                        usersMap[room.users._id] = room.users
+                    if (Array.isArray(room.users)) {
+                        room.users.forEach(user => {
+                            usersMap[user._id] = user
+                        })
                     }
                 })
 

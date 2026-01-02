@@ -87,7 +87,7 @@ const FavouriteRooms = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => removeFromFavorites(room.RoomID)}
+                                        onClick={() => removeFromFavorites(room._id)}
                                         className="mt-6 w-full bg-red-50 text-red-700 py-2 rounded-lg font-bold hover:bg-red-100 border"
                                     >
                                         Remove from Favorites
