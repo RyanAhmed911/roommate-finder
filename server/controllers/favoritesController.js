@@ -11,7 +11,7 @@ export const addToFavorites = async (req, res) => {
             return res.json({ success: false, message: 'Room ID is required' });
         }
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
@@ -61,7 +61,7 @@ export const removeFromFavorites = async (req, res) => {
             return res.json({ success: false, message: 'Room ID is required' });
         }
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
@@ -136,7 +136,7 @@ export const isFavorite = async (req, res) => {
         const userId = req.userId;
         const { roomID } = req.params;
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
