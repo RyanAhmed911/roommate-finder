@@ -11,7 +11,7 @@ export const addToFavorites = async (req, res) => {
             return res.json({ success: false, message: 'Room ID is required' });
         }
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
@@ -31,7 +31,11 @@ export const addToFavorites = async (req, res) => {
             });
         }
 
-        if (favorites.posts.includes(room._id)) {
+        const alreadyInFavorites = favorites.posts.some(
+            (id) => id.toString() === room._id.toString()
+        );
+
+        if (alreadyInFavorites) {
             return res.json({ 
                 success: false, 
                 message: 'Room already in favorites' 
@@ -61,7 +65,7 @@ export const removeFromFavorites = async (req, res) => {
             return res.json({ success: false, message: 'Room ID is required' });
         }
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
@@ -75,7 +79,11 @@ export const removeFromFavorites = async (req, res) => {
             });
         }
 
-        if (!favorites.posts.includes(room._id)) {
+        const existsInFavorites = favorites.posts.some(
+            (id) => id.toString() === room._id.toString()
+        );
+
+        if (!existsInFavorites) {
             return res.json({ 
                 success: false, 
                 message: 'Room not in favorites' 
@@ -136,7 +144,7 @@ export const isFavorite = async (req, res) => {
         const userId = req.userId;
         const { roomID } = req.params;
 
-        const room = await roomModel.findOne({ RoomID: roomID });
+        const room = await roomModel.findById(roomID);
         if (!room) {
             return res.json({ success: false, message: 'Room not found' });
         }
@@ -147,7 +155,9 @@ export const isFavorite = async (req, res) => {
             return res.json({ success: true, isFavorite: false });
         }
 
-        const isFavorite = favorites.posts.includes(room._id);
+        const isFavorite = favorites.posts.some(
+            (id) => id.toString() === room._id.toString()
+        );
         res.json({ success: true, isFavorite });
 
     } catch (error) {

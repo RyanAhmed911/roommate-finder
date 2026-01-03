@@ -10,6 +10,7 @@ const Rooms = () => {
     const navigate = useNavigate()
     const [rooms, setRooms] = useState([])
     const [selectedRoom, setSelectedRoom] = useState(null)
+    const [favoriteRoomIds, setFavoriteRoomIds] = useState(new Set())
 
     const fetchRooms = async () => {
         try {
@@ -17,6 +18,57 @@ const Rooms = () => {
             if (data.success) {
                 setRooms(data.rooms)
             }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    const fetchFavoriteRooms = async () => {
+        if (!userData) {
+            setFavoriteRoomIds(new Set())
+            return
+        }
+
+        try {
+            axios.defaults.withCredentials = true
+            const { data } = await axios.get(`${backendUrl}/api/favorites`)
+            if (data.success) {
+                const ids = (data.rooms || []).map(r => (typeof r === 'string' ? r : r?._id)).filter(Boolean)
+                setFavoriteRoomIds(new Set(ids))
+            }
+        } catch (error) {
+            // Don't block the Rooms page if favorites fail
+            console.error(error)
+        }
+    }
+
+    const toggleFavorite = async (roomId) => {
+        if (!userData) {
+            toast.error('Please login to save favorite rooms')
+            navigate('/login')
+            return
+        }
+
+        const isFav = favoriteRoomIds.has(roomId)
+
+        try {
+            axios.defaults.withCredentials = true
+            const endpoint = isFav ? `${backendUrl}/api/favorites/remove` : `${backendUrl}/api/favorites/add`
+            const { data } = await axios.post(endpoint, { roomID: roomId })
+
+            if (!data.success) {
+                toast.error(data.message)
+                return
+            }
+
+            setFavoriteRoomIds(prev => {
+                const next = new Set(prev)
+                if (isFav) next.delete(roomId)
+                else next.add(roomId)
+                return next
+            })
+
+            toast.success(isFav ? 'Removed from favorites' : 'Added to favorites')
         } catch (error) {
             toast.error(error.message)
         }
@@ -70,6 +122,11 @@ const Rooms = () => {
         fetchRooms()
     }, [])
 
+    useEffect(() => {
+        fetchFavoriteRooms()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userData])
+
     //Nusayba: Added compatibility score button
 
     return (
@@ -86,10 +143,33 @@ const Rooms = () => {
                             u => u?._id === userData?._id || u === userData?._id
                         );
 
+                        const isFavorite = favoriteRoomIds.has(room._id)
+
                         return(
                         <div key={room._id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-xl transition-shadow flex flex-col h-full">
                             <div className="bg-indigo-600 p-4 flex justify-between items-center text-white">
-                                <h3 className="font-bold text-lg">{room.location}</h3>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <h3 className="font-bold text-lg truncate">{room.location}</h3>
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleFavorite(room._id)}
+                                        className={`p-1 rounded-full transition-colors ${isFavorite ? 'bg-yellow-400/20 text-yellow-200' : 'bg-white/10 text-white/90 hover:bg-white/20'}`}
+                                        title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                                    >
+                                        <svg
+                                            className="w-5 h-5"
+                                            viewBox="0 0 24 24"
+                                            fill={isFavorite ? 'currentColor' : 'none'}
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                        </svg>
+                                    </button>
+                                </div>
+
                                 <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">৳ {room.rent}</span>
                             </div>
 

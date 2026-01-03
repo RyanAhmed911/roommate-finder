@@ -10,7 +10,7 @@ import favoritesRouter from './routes/favoritesRoutes.js';
 import expenseRouter from './routes/expenseRoutes.js';
 import requestRouter from './routes/requestRoutes.js';
 import compatibilityRouter from './routes/compatibilityRoutes.js';
-
+import favoriteRoommatesRouter from './routes/favoriteRoommatesRoutes.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -31,5 +31,5 @@ app.use('/api/favorites', favoritesRouter);
 app.use('/api/compatibility', compatibilityRouter);
 app.use('/api/expense', expenseRouter);
 app.use('/api/request', requestRouter);
-
+app.use('/api/favorite-roommates', favoriteRoommatesRouter);
 app.listen(port, () => console.log(`Server running on port ${port}`));

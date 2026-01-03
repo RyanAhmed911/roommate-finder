@@ -28,6 +28,9 @@ const Roommates = () => {
 
     const [showFilters, setShowFilters] = useState(false) 
 
+
+    const [favoriteRoommateIds, setFavoriteRoommateIds] = useState(new Set())
+
     const fetchUsers = async () => {
         try {
             setLoading(true)
@@ -69,6 +72,21 @@ const Roommates = () => {
         }
     }
 
+
+    const fetchFavoriteRoommates = async () => {
+        try {
+            axios.defaults.withCredentials = true
+            const { data } = await axios.get(`${backendUrl}/api/favorite-roommates`)
+            if (data.success) {
+                const ids = new Set((data.roommates || []).map(u => u._id))
+                setFavoriteRoommateIds(ids)
+            }
+        } catch (error) {
+            // keep quiet unless needed, but still safe to show
+            toast.error(error.message)
+        }
+    }
+
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             fetchUsers();
@@ -76,6 +94,15 @@ const Roommates = () => {
         
         return () => clearTimeout(delayDebounce);
     }, [userData, searchName, searchLocation, searchInstitution, filterGender, filterSmoker, filterDrinking, filterFood, filterSleep, filterCleanliness, filterNoise, filterVisitors, filterPets])
+
+
+    useEffect(() => {
+        if (userData) {
+            fetchFavoriteRoommates()
+        } else {
+            setFavoriteRoommateIds(new Set())
+        }
+    }, [userData])
 
     const handleSendRequest = async (userId) => {
         if (!userData) {
@@ -95,6 +122,38 @@ const Roommates = () => {
                 } else {
                     toast.info("Request feature coming soon!")
                 }
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+
+    const toggleFavoriteRoommate = async (roommateId) => {
+        if (!userData) {
+            toast.error("Please login to add favorites")
+            navigate('/login')
+            return
+        }
+
+        try {
+            axios.defaults.withCredentials = true
+            const isFav = favoriteRoommateIds.has(roommateId)
+
+            const endpoint = isFav
+                ? `${backendUrl}/api/favorite-roommates/remove`
+                : `${backendUrl}/api/favorite-roommates/add`
+
+            const { data } = await axios.post(endpoint, { roommateID: roommateId })
+
+            if (data.success) {
+                const updated = new Set(favoriteRoommateIds)
+                if (isFav) updated.delete(roommateId)
+                else updated.add(roommateId)
+                setFavoriteRoommateIds(updated)
+                toast.success(data.message)
             } else {
                 toast.error(data.message)
             }
@@ -278,11 +337,22 @@ const Roommates = () => {
                                             <h3 className="text-xl font-bold text-slate-800 leading-tight">{user.name}</h3>
                                             <p className="text-indigo-500 font-medium text-sm mt-0.5">{user.institution || 'N/A'}</p>
                                         </div>
-                                        {user.age && (
-                                            <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full font-bold border border-slate-200">
-                                                {user.age} yo
-                                            </span>
-                                        )}
+
+                                        <div className="flex items-start gap-2">
+                                            <button
+                                                onClick={() => toggleFavoriteRoommate(user._id)}
+                                                className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-lg hover:bg-slate-200 transition-all"
+                                                title={favoriteRoommateIds.has(user._id) ? "Remove from favorites" : "Add to favorites"}
+                                            >
+                                                {favoriteRoommateIds.has(user._id) ? '★' : '☆'}
+                                            </button>
+
+                                            {user.age && (
+                                                <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full font-bold border border-slate-200">
+                                                    {user.age} yo
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 mt-1 mb-2">
