@@ -107,10 +107,9 @@ export const requestToJoin = async (req, res) => {
 export const getMyRequests = async (req, res) => {
     try {
         const userId = req.userId;
-
         const requests = await requestModel.find({ receiverId: userId, status: 'pending' })
             .populate('senderId', 'name email image') 
-            .populate('roomId', 'location rent');     
+            .populate('roomId', 'location rent users');     
 
         res.json({ success: true, requests });
 

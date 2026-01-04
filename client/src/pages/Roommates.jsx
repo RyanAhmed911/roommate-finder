@@ -125,7 +125,6 @@ const Roommates = () => {
                 setFavoriteRoommateIds(ids)
             }
         } catch (error) {
-            // keep quiet unless needed, but still safe to show
             toast.error(error.message)
         }
     }
@@ -163,7 +162,14 @@ const Roommates = () => {
                     toast.info("Please post your room details before sending requests.")
                     navigate('/post-room')
                 } else {
-                    toast.info("Request feature coming soon!")
+                    // Send invite to the selected user
+                    const { data: inviteData } = await axios.post(backendUrl + '/api/request/send', { receiverId: userId })
+                    
+                    if (inviteData.success) {
+                        toast.success(inviteData.message)
+                    } else {
+                        toast.error(inviteData.message)
+                    }
                 }
             } else {
                 toast.error(data.message)
