@@ -11,6 +11,7 @@ const Rooms = () => {
     const [rooms, setRooms] = useState([])
     const [selectedRoom, setSelectedRoom] = useState(null)
     const [favoriteRoomIds, setFavoriteRoomIds] = useState(new Set())
+    const [compatibilityModal, setCompatibilityModal] = useState({ open: false, score: null, room: null });
 
     const fetchRooms = async () => {
         try {
@@ -75,27 +76,41 @@ const Rooms = () => {
     }
 
     //added by Nusayba
-    const checkCompatibility = async (roomId) => {
-        try {
-            const { data } = await axios.post(
-                backendUrl + "/api/compatibility/score",
-                {
-                    userId: userData._id,
-                    roomId: roomId
-                },
-                { withCredentials: true }
-            );
+const checkCompatibility = async (roomId) => {
+    const room = rooms.find(r => r._id === roomId);
+    setCompatibilityModal({
+        open: true,
+        score: null,
+        room
+    });
 
-            if (data.success) {
-                alert(`Compatibility Score: ${data.compatibilityScore}%`);
-            } else {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error calculating compatibility");
+    try {
+        const response = await axios.post(
+            `${backendUrl}/api/compatibility/score`,
+            {
+                userId: userData._id,
+                roomId
+            },
+            { withCredentials: true }
+        );
+
+        if (response.data.success) {
+            setCompatibilityModal({
+                open: true,
+                score: response.data.compatibilityScore,
+                room
+            });
+        } else {
+            toast.info(response.data.message);
+            setCompatibilityModal({ open: false, score: null, room: null });
         }
-    };
+
+    } catch (err) {
+        console.error(err);
+        toast.error("Error calculating compatibility");
+        setCompatibilityModal({ open: false, score: null, room: null });
+    }
+};
     //added by Nusayba
 
     const handleJoinRequest = async (roomId) => {
@@ -346,6 +361,53 @@ const Rooms = () => {
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                 Request to Join Room
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/*Added by Nusayba: Compatibility Modal */}
+            {compatibilityModal.open && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fadeIn">
+                        <div className="bg-purple-600 p-6 flex justify-between items-start text-white">
+                            <h2 className="text-xl font-bold">Compatibility Score</h2>
+                            <button 
+                                onClick={() => setCompatibilityModal({ open: false, score: null, room: null })}
+                                className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 text-center">
+                            <p className="text-slate-600 mb-4">Room: <span className="font-semibold">{compatibilityModal.room?.location}</span></p>
+
+                            {compatibilityModal.score === null ? (
+                                <>
+                                    <p className="text-lg font-semibold text-slate-600">
+                                        Processing compatibility score…
+                                    </p>
+                                    <p className="text-sm text-slate-400 mt-2">
+                                        Please wait a moment
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-3xl font-bold text-purple-600">
+                                        {compatibilityModal.score}%
+                                    </p>
+                                </>
+                            )}
+
+                            <button 
+                                onClick={() => setCompatibilityModal({ open: false, score: null, room: null })}
+                                className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+                            >
+                                Close
                             </button>
                         </div>
                     </div>

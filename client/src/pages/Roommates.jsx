@@ -25,11 +25,54 @@ const Roommates = () => {
     const [filterNoise, setFilterNoise] = useState('')
     const [filterVisitors, setFilterVisitors] = useState('')
     const [filterPets, setFilterPets] = useState('')
-
     const [showFilters, setShowFilters] = useState(false) 
-
-
     const [favoriteRoommateIds, setFavoriteRoommateIds] = useState(new Set())
+    const [compatibilityModal, setCompatibilityModal] = useState({open: false, score: null,roommate: null});
+
+
+    //Added by Nusayba
+    const checkRoommateCompatibility = async (roommateId, roommateName) => {
+    if (!userData) {
+        toast.error("Please login first");
+        navigate('/login');
+        return;
+    }
+
+    try {
+        axios.defaults.withCredentials = true;
+
+        const { data: roomData } = await axios.get(`${backendUrl}/api/room/my-rooms`);
+        const myPostedRooms = roomData.rooms.filter(r => r.status === true);
+        if (!roomData.success || myPostedRooms.length === 0) {
+        toast.info("Please post your room first to check compatibility.");
+        return;
+        }
+
+        const myRoom = myPostedRooms[0];
+
+        setCompatibilityModal({ open: true, score: null, roommate: { name: roommateName }, room: myRoom});
+
+        const { data } = await axios.post(
+        `${backendUrl}/api/compatibility/score`,
+        { userId: roommateId, roomId: myRoom._id },
+        { withCredentials: true }
+        );
+
+        if (data.success) {
+        setCompatibilityModal({open: true, score: data.compatibilityScore, roommate: { name: roommateName },room: myRoom});
+        } 
+        else {
+        toast.error(data.message || "Failed to calculate compatibility");
+        setCompatibilityModal({ open: false, score: null, roommate: null, room: null });
+        }
+
+    } catch (error) {
+        console.error(error);
+        toast.error("Failed to calculate compatibility");
+        setCompatibilityModal({ open: false, score: null, roommate: null, room: null });
+    }
+    };
+    //Added by Nusayba
 
     const fetchUsers = async () => {
         try {
@@ -325,9 +368,14 @@ const Roommates = () => {
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </div>
 
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-10">
-                                        <span className="text-xs font-bold text-slate-500">Match</span>
-                                        <span className="text-sm font-black text-green-600">85%</span>
+                                    <div className="absolute top-4 right-4 z-10">
+                                        <button
+                                            onClick={() => checkRoommateCompatibility(user._id, user.name)}
+                                            className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1
+                                                    hover:bg-purple-50 hover:scale-105 hover:shadow-xl transition-all duration-300"
+                                        >
+                                            <span className="text-sm font-black text-purple-600">Check Compatibility Score</span>
+                                        </button>                        
                                     </div>
                                 </div>
 
@@ -380,10 +428,9 @@ const Roommates = () => {
                                             </span>
                                         )}
                                     </div>
-
+                                    
                                     <div className="flex-1"></div>
-
-                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                       <div className="grid grid-cols-2 gap-3 mt-2">                                                                              
                                         <button onClick={() => handleSendRequest(user._id)} className="py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg">Request</button>
                                         <button onClick={() => navigate(`/view-profile/${user._id}`)} className="py-2.5 rounded-xl bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all">View Profile</button>
                                     </div>
@@ -391,6 +438,49 @@ const Roommates = () => {
                                 </div>
                             </div>
                         ))}
+
+                        {/* Added by Nusayba : Compatibility Modal */}
+                        {compatibilityModal.open && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fadeIn">
+                            
+                            <div className="bg-purple-600 p-6 flex justify-between items-start text-white">
+                                <h2 className="text-xl font-bold">Compatibility Score</h2>
+                                <button
+                                onClick={() => setCompatibilityModal({ open: false, score: null, roommate: null, room: null })}
+                                className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+                                >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                </button>
+                            </div>
+
+                           
+                            <div className="p-6 text-center">
+                                <p className="text-slate-600 mb-4">
+                                Room: <span className="font-semibold">{compatibilityModal.room?.location || 'Your Room'}</span>
+                                </p>
+
+                                <p className={`${compatibilityModal.score === null ? 'text-lg font-semibold text-slate-600' : 'text-3xl font-bold text-purple-600'}`}>
+                                {compatibilityModal.score === null ? 'Processing compatibility score…' : `${compatibilityModal.score}%`}
+                                </p>
+
+                                {compatibilityModal.score === null && (
+                                <p className="text-sm text-slate-400 mt-2">Please wait a moment</p>
+                                )}
+
+                                <button
+                                onClick={() => setCompatibilityModal({ open: false, score: null, roommate: null, room: null })}
+                                className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+                                >
+                                Close
+                                </button>
+                            </div>
+                            </div>
+                        </div>
+                        )}
+
                     </div>
                 )}
             </div>
