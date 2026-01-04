@@ -25,11 +25,47 @@ const Roommates = () => {
     const [filterNoise, setFilterNoise] = useState('')
     const [filterVisitors, setFilterVisitors] = useState('')
     const [filterPets, setFilterPets] = useState('')
-
     const [showFilters, setShowFilters] = useState(false) 
-
-
     const [favoriteRoommateIds, setFavoriteRoommateIds] = useState(new Set())
+
+    //Added by Nusayba
+    const checkRoommateCompatibility = async (roommateId) => {
+        if (!userData) {
+            toast.error("Please login first");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            axios.defaults.withCredentials = true;
+
+            const { data: roomData } = await axios.get(`${backendUrl}/api/room/my-rooms`);
+            if (!roomData.success || roomData.rooms.filter(r => r.status === true).length === 0) {
+                toast.info("Please post your room first to check compatibility.");
+                return;
+            }
+
+            const myRoom = roomData.rooms.filter(r => r.status === true)[0];
+
+            const { data } = await axios.post(
+                `${backendUrl}/api/compatibility/score`,
+                { userId: roommateId, roomId: myRoom._id },
+                { withCredentials: true }
+            );
+
+            if (data.success) {
+                toast.success(`Compatibility Score: ${data.compatibilityScore}%`);
+            } else {
+                toast.error(data.message || "Failed to calculate compatibility");
+            }
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to calculate compatibility");
+        }
+    };
+    //Added by Nusayba
+
 
     const fetchUsers = async () => {
         try {
@@ -380,10 +416,9 @@ const Roommates = () => {
                                             </span>
                                         )}
                                     </div>
-
+                                    
                                     <div className="flex-1"></div>
-
-                                    <div className="grid grid-cols-2 gap-3 mt-2">
+                                       <div className="grid grid-cols-2 gap-3 mt-2">                                                                              
                                         <button onClick={() => handleSendRequest(user._id)} className="py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg">Request</button>
                                         <button onClick={() => navigate(`/view-profile/${user._id}`)} className="py-2.5 rounded-xl bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all">View Profile</button>
                                     </div>
