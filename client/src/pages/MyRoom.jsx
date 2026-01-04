@@ -4,14 +4,12 @@ import Navbar from '../components/Navbar'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
-import Requests from '../components/Requests'
 
 const MyRoom = () => {
     const { backendUrl, userData } = useContext(AppContent)
     const navigate = useNavigate()
     const [room, setRoom] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [activeTool, setActiveTool] = useState(null)
     const [isEditing, setIsEditing] = useState(false)
 
     const [location, setLocation] = useState('')
@@ -409,19 +407,6 @@ const MyRoom = () => {
                                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                                     <h3 className="text-lg font-bold text-slate-800 mb-4">Room Tools</h3>
                                     <div className="grid grid-cols-1 gap-3">
-                                        
-                                        <button 
-                                            onClick={() => setActiveTool('requests')}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors group">
-                                            <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                                            </div>
-                                            <div className="text-left">
-                                                <p className="font-bold text-sm">Requests</p>
-                                                <p className="text-xs opacity-70">Manage joins</p>
-                                            </div>
-                                        </button>
-
                                         <button 
                                             onClick={() => navigate('/room/expenses')}
                                             className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors group">
@@ -477,10 +462,6 @@ const MyRoom = () => {
                     </div>
                 )}
             </div>
-            
-            {activeTool === 'requests' && (
-                <Requests onClose={() => setActiveTool(null)} />
-            )}
         </div>
     )
 }
