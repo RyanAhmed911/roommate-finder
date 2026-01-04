@@ -361,9 +361,14 @@ const Roommates = () => {
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </div>
 
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-10">
-                                        <span className="text-xs font-bold text-slate-500">Match</span>
-                                        <span className="text-sm font-black text-green-600">85%</span>
+                                    <div className="absolute top-4 right-4 z-10">
+                                    <button
+                                        onClick={() => checkRoommateCompatibility(user._id)}
+                                        className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1
+                                                hover:bg-purple-50 hover:scale-105 hover:shadow-xl transition-all duration-300"
+                                    >
+                                        <span className="text-sm font-black text-purple-600">Check Compatibility Score</span>
+                                    </button>
                                     </div>
                                 </div>
 
