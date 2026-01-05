@@ -172,7 +172,7 @@ const CreateProfile = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)] py-10">
+    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-[#08101C] py-10">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-32 sm:w-40 cursor-pointer" />
       
       <div className="bg-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-2xl text-sm mt-20 sm:my-10">

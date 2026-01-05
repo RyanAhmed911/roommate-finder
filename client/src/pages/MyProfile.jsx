@@ -12,7 +12,7 @@ const MyProfile = () => {
     if (!userData) return <div className='text-white text-center mt-20'>Loading...</div>
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#08101C]">
             <Navbar />
             
             <div className="pt-24 pb-10 px-4 flex justify-center">

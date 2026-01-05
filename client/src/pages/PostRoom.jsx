@@ -112,7 +112,7 @@ const PostRoom = () => {
     }
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-[#08101C]">
             <Navbar />
             <div className="flex items-center justify-center py-24 px-4">
                 <div className="bg-slate-900 p-8 rounded-2xl shadow-2xl w-full max-w-2xl text-white relative">
