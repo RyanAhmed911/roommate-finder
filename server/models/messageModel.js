@@ -1,14 +1,28 @@
 import mongoose from "mongoose";
 
-// Prachurzo: From class diagram
-const messageSchema = new mongoose.Schema({
-    sender: { type: String, required: true },
-    receiver: { type: String, required: true },
-    messageContent: { type: String, required: true },
-    sendingTime: { type: Date, required: true }
-});
+const messageSchema = new mongoose.Schema(
+  {
+    room: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "room",
+      required: true
+    },
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true
+    },
+    text: {
+      type: String,
+      required: true
+    }
+  },
+  { timestamps: true }
+);
 
-const messageModel = mongoose.models.message || mongoose.model('message', messageSchema);
+const messageModel =
+  mongoose.models.message || mongoose.model("message", messageSchema);
 
 export default messageModel;
 
+//Fully Updated by Nusayba
