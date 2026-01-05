@@ -11,6 +11,8 @@ const PostRoom = () => {
     const [loading, setLoading] = useState(true)
     const [existingRoom, setExistingRoom] = useState(null)
 
+    const [image, setImage] = useState(false)
+    const [imagePreview, setImagePreview] = useState('')
     const [personalityType, setPersonalityType] = useState('')
     const [hobbies, setHobbies] = useState('')
     const [foodHabits, setFoodHabits] = useState('')
@@ -45,6 +47,7 @@ const PostRoom = () => {
                     setDrinking(room.drinking || false)
                     setVisitors(room.visitors || false)
                     setPetsAllowed(room.petsAllowed || false)
+                    if (room.image) setImagePreview(room.image)
                     
                     setLoading(false)
                 } else {
@@ -63,6 +66,23 @@ const PostRoom = () => {
         }
     }, [userData, backendUrl, navigate])
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    }
+
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => resolve(fileReader.result);
+            fileReader.onerror = (error) => reject(error);
+        });
+    };
+
     const onSubmitHandler = async (e) => {
         e.preventDefault()
 
@@ -75,6 +95,11 @@ const PostRoom = () => {
 
         try {
             axios.defaults.withCredentials = true
+
+            let imageBase64 = existingRoom.image || "";
+            if (image) {
+                imageBase64 = await convertToBase64(image);
+            }
             
             const payload = {
                 personalityType,
@@ -88,7 +113,8 @@ const PostRoom = () => {
                 drinking,
                 visitors,
                 petsAllowed,
-                status: true
+                status: true,
+                image: imageBase64
             }
 
             const { data } = await axios.put(backendUrl + '/api/room/' + existingRoom._id, payload)
@@ -129,6 +155,33 @@ const PostRoom = () => {
                     <p className="text-center text-indigo-300 mb-8">Set your roommate preferences to publish your room.</p>
 
                     <div className="flex flex-col gap-6">
+                        {/* Image Upload Section */}
+                        <div className="bg-[#1e2746] p-6 rounded-xl border border-indigo-500/30">
+                            <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Room Image
+                            </h3>
+                            
+                            <div className="flex flex-col items-center gap-4">
+                                <label htmlFor="room-image-upload" className="cursor-pointer group relative">
+                                    <div className="w-40 h-40 rounded-xl overflow-hidden border-4 border-[#333A5C] group-hover:border-indigo-500 transition-all flex items-center justify-center bg-[#333A5C]">
+                                        {imagePreview ? (
+                                            <img src={imagePreview} alt="Room" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <svg className="w-16 h-16 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-white text-sm font-semibold">Upload Room Image</p>
+                                    </div>
+                                </label>
+                                <input onChange={handleImageChange} type="file" id="room-image-upload" hidden accept="image/*" />
+                                <p className="text-center text-indigo-300 text-sm">Upload a picture of your room</p>
+                            </div>
+                        </div>
+
                         <div className="bg-[#1e2746] p-6 rounded-xl border border-indigo-500/30">
                             <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
                                 <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
