@@ -71,7 +71,7 @@ const ViewProfile = () => {
     if (!profileData) return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-800">User Not Found</div>
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#08101C]">
             <Navbar />
             
             <div className="pt-24 pb-10 px-4 flex justify-center">

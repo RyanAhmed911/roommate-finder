@@ -10,10 +10,12 @@ import { useNavigate } from 'react-router-dom'
 const MyPosts = () => {
     const { backendUrl, userData } = useContext(AppContent)
     const navigate = useNavigate()
-    const [myRooms, setMyRooms] = useState([])
+    const [allRooms, setAllRooms] = useState([]) // To check if user has ANY room
+    const [activePosts, setActivePosts] = useState([]) // To show only POSTED rooms
     const [editingRoom, setEditingRoom] = useState(null)
     const [loading, setLoading] = useState(false)
 
+    // Form States for Edit Modal
     const [location, setLocation] = useState('')
     const [rent, setRent] = useState('')
     const [capacity, setCapacity] = useState(1)
@@ -38,9 +40,12 @@ const MyPosts = () => {
             axios.defaults.withCredentials = true
             const { data } = await axios.get(backendUrl + '/api/room/my-rooms')
             if (data.success) {
-                // FIXED: Filter to only show rooms that are POSTED (status === true)
-                const postedRooms = data.rooms.filter(room => room.status === true)
-                setMyRooms(postedRooms)
+                setAllRooms(data.rooms)
+                // Only show rooms that are currently active (posted)
+                const posted = data.rooms.filter(room => room.status === true)
+                setActivePosts(posted)
+            } else {
+                toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)
@@ -48,29 +53,59 @@ const MyPosts = () => {
     }
 
     useEffect(() => {
-        if (!userData) {
+        if (userData) {
+            fetchMyRooms()
+        } else {
             navigate('/login')
-            return
         }
-        fetchMyRooms()
     }, [userData])
 
-    const handleEdit = (room) => {
+    // Logic: Unpost the room (Status = false) instead of deleting data
+    const handleDeletePost = async (roomId) => {
+        if (!window.confirm("Are you sure you want to remove this post? The room will remain in your dashboard.")) return
+        
+        try {
+            axios.defaults.withCredentials = true
+            // Update status to false (Unpost)
+            const { data } = await axios.put(backendUrl + '/api/room/' + roomId, { status: false })
+            
+            if (data.success) {
+                toast.success("Post removed successfully")
+                fetchMyRooms()
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    // Logic: Check room existence before navigating
+    const handleCreatePost = () => {
+        if (allRooms.length === 0) {
+            toast.info("You need to create a room first.")
+            navigate('/my-room')
+        } else {
+            navigate('/post-room')
+        }
+    }
+
+    const startEditing = (room) => {
         setEditingRoom(room)
         setLocation(room.location)
         setRent(room.rent)
         setCapacity(room.capacity)
         setFloor(room.floor)
         setArea(room.area)
-        setBalcony(room.balcony)
-        setAttachedBathroom(room.attachedBathroom)
+        setBalcony(room.balcony || false)
+        setAttachedBathroom(room.attachedBathroom || false)
         setPersonalityType(room.personalityType || '')
-        setHobbies(Array.isArray(room.hobbies) ? room.hobbies.join(', ') : '')
+        setHobbies(room.hobbies ? room.hobbies.join(', ') : '')
         setFoodHabits(room.foodHabits || '')
         setSleepSchedule(room.sleepSchedule || '')
         setCleanlinessLevel(room.cleanlinessLevel || '')
         setNoiseTolerance(room.noiseTolerance || '')
-        setMedicalConditions(Array.isArray(room.medicalConditions) ? room.medicalConditions.join(', ') : '')
+        setMedicalConditions(room.medicalConditions ? room.medicalConditions.join(', ') : '')
         setSmoker(room.smoker || false)
         setDrinking(room.drinking || false)
         setVisitors(room.visitors || false)
@@ -79,141 +114,95 @@ const MyPosts = () => {
 
     const handleUpdate = async () => {
         if (!editingRoom) return
-        
         setLoading(true)
-        
-        const hobbiesArray = hobbies.split(',').map(h => h.trim()).filter(h => h)
-        const medicalArray = medicalConditions.split(',').map(m => m.trim()).filter(m => m)
-
         try {
             axios.defaults.withCredentials = true
-            
-            const payload = {
-                location,
-                rent: Number(rent),
-                capacity: Number(capacity),
-                floor: Number(floor),
-                area: Number(area),
-                balcony,
-                attachedBathroom,
-                personalityType,
-                hobbies: hobbiesArray,
-                foodHabits,
-                sleepSchedule,
-                cleanlinessLevel,
-                noiseTolerance,
-                medicalConditions: medicalArray,
-                smoker,
-                drinking,
-                visitors,
-                petsAllowed
-            }
+            const hobbiesArray = hobbies.split(',').map(h => h.trim()).filter(Boolean)
+            const medicalArray = medicalConditions.split(',').map(m => m.trim()).filter(Boolean)
 
-            const { data } = await axios.put(backendUrl + `/api/room/${editingRoom._id}`, payload)
+            const { data } = await axios.put(backendUrl + '/api/room/' + editingRoom._id, {
+                location, rent, capacity, floor, area, balcony, attachedBathroom,
+                personalityType, hobbies: hobbiesArray, foodHabits, sleepSchedule,
+                cleanlinessLevel, noiseTolerance, medicalConditions: medicalArray,
+                smoker, drinking, visitors, petsAllowed
+            })
 
             if (data.success) {
-                toast.success('Room updated successfully!')
+                toast.success("Room details updated")
                 setEditingRoom(null)
                 fetchMyRooms()
             } else {
                 toast.error(data.message)
             }
-        } catch (err) {
-            console.error(err)
-            toast.error(err.message || 'Failed to update room')
+        } catch (error) {
+            toast.error(error.message)
         } finally {
             setLoading(false)
         }
     }
 
-    const handleDelete = async (roomId) => {
-        if (!window.confirm('Are you sure you want to delete this room post?')) return
-
-        try {
-            axios.defaults.withCredentials = true
-            const { data } = await axios.delete(backendUrl + `/api/room/${roomId}`)
-
-            if (data.success) {
-                toast.success('Room deleted successfully!')
-                fetchMyRooms()
-            } else {
-                toast.error(data.message)
-            }
-        } catch (err) {
-            console.error(err)
-            toast.error(err.message || 'Failed to delete room')
-        }
-    }
-
     return (
-        <div className="min-h-screen bg-slate-50 pt-20">
+        <div className="min-h-screen bg-[#08101C]">
             <Navbar />
-            <div className="container mx-auto px-4 py-10">
-                
-                {/* Header with Post Room Button */}
-                <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-slate-800 text-center sm:text-left">My Room Posts</h1>
-                        <p className="text-slate-500 text-center sm:text-left">Manage your room listings</p>
-                    </div>
-                    <button 
-                        onClick={() => navigate('/post-room')}
-                        className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                        Post Room
-                    </button>
+            
+            <div className="container mx-auto px-4 py-24 sm:px-10">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-white mb-3">My Posts</h1>
+                    <p className="text-slate-400">Manage your active room listings.</p>
                 </div>
 
-                {myRooms.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-slate-100">
-                        <p className="text-slate-500 mb-4 text-lg">You haven't posted any rooms yet.</p>
+                {activePosts.length === 0 ? (
+                    <div className="text-center py-20">
+                        <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📝</div>
+                        <p className="text-xl text-slate-400">You don't have any active posts.</p>
+                        
                         <button 
-                            onClick={() => navigate('/post-room')}
-                            className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition-colors shadow-lg">
-                            Post your first room
+                            onClick={handleCreatePost} 
+                            className="mt-6 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-bold shadow-lg shadow-indigo-600/20 transition-all hover:scale-105"
+                        >
+                            Create Post
                         </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {myRooms.map((room) => (
-                            <div key={room._id} className="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
-                                <div className="bg-indigo-600 p-4 flex justify-between items-center text-white">
-                                    <h3 className="font-bold text-lg">{room.location}</h3>
-                                    <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">৳ {room.rent}</span>
+                        {activePosts.map(room => (
+                            <div key={room._id} className="bg-slate-900 rounded-2xl shadow-lg border border-slate-700 overflow-hidden flex flex-col h-full hover:border-indigo-500/30 transition-all duration-300 group">
+                                <div className="h-40 bg-slate-800 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 relative">
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold text-white">{room.location}</h3>
+                                        <p className="text-slate-400 text-sm">৳ {room.rent} / month</p>
+                                    </div>
+                                    <div className="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-green-900/30 text-green-400 border border-green-800">
+                                        Active
+                                    </div>
                                 </div>
-
-                                <div className="p-6">
-                                    <div className="grid grid-cols-2 gap-4 text-sm text-slate-600 mb-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-slate-400">Area</span>
-                                            <span className="font-semibold">{room.area} sq ft</span>
+                                
+                                <div className="p-6 flex flex-col flex-1">
+                                    <div className="grid grid-cols-2 gap-4 text-sm text-slate-400 mb-6">
+                                        <div className="flex justify-between border-b border-slate-800 pb-2">
+                                            <span>Area</span> <span className="text-white font-medium">{room.area} sq ft</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-slate-400">Floor</span>
-                                            <span className="font-semibold">{room.floor}th</span>
+                                        <div className="flex justify-between border-b border-slate-800 pb-2">
+                                            <span>Floor</span> <span className="text-white font-medium">{room.floor}</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-slate-400">Capacity</span>
-                                            <span className="font-semibold">{room.capacity} person(s)</span>
+                                        <div className="flex justify-between border-b border-slate-800 pb-2">
+                                            <span>Capacity</span> <span className="text-white font-medium">{room.capacity}</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-slate-400">Status</span>
-                                            <span className={`font-semibold ${room.status ? 'text-green-600' : 'text-red-600'}`}>
-                                                {room.status ? 'Available' : 'Full'}
-                                            </span>
+                                        <div className="flex justify-between border-b border-slate-800 pb-2">
+                                            <span>Type</span> <span className="text-white font-medium">{room.roomType || 'Shared'}</span>
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                                    <div className="mt-auto flex gap-3">
                                         <button 
-                                            onClick={() => handleEdit(room)}
-                                            className="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg font-bold hover:bg-indigo-100 transition-colors border border-indigo-200">
+                                            onClick={() => startEditing(room)}
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg transition-colors shadow-lg shadow-indigo-600/20">
                                             Edit
                                         </button>
                                         <button 
-                                            onClick={() => handleDelete(room._id)}
-                                            className="flex-1 bg-red-50 text-red-700 py-2 rounded-lg font-bold hover:bg-red-100 transition-colors border border-red-200">
-                                            Delete
+                                            onClick={() => handleDeletePost(room._id)}
+                                            className="flex-1 bg-slate-800 hover:bg-red-900/20 text-slate-300 hover:text-red-400 font-bold py-2 rounded-lg transition-colors border border-slate-700 hover:border-red-900/50">
+                                            Delete Post
                                         </button>
                                     </div>
                                 </div>
@@ -225,164 +214,84 @@ const MyPosts = () => {
 
             {/* Edit Modal */}
             {editingRoom && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-                    <div className="bg-slate-900 p-8 rounded-2xl shadow-2xl w-full max-w-2xl text-white my-8">
-                        <div className="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                            <h2 className="text-2xl font-bold">Edit Room Post</h2>
-                            <button onClick={() => setEditingRoom(null)} className="text-slate-400 hover:text-white transition-colors">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+                    <div className="bg-slate-900 rounded-2xl w-full max-w-3xl border border-slate-700 p-8 relative my-8 shadow-2xl animate-fadeIn">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-white">Edit Room Details</h2>
+                            <button onClick={() => setEditingRoom(null)} className="text-slate-400 hover:text-white">✕</button>
                         </div>
-
-                        <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                            {/* Room Details Section */}
-                            <div className="bg-[#1e2746] p-6 rounded-xl border border-slate-700">
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    Room Details
-                                </h3>
-
-                                <div className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-indigo-300 mb-1 text-sm">Location</label>
-                                        <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="text" value={location} onChange={e => setLocation(e.target.value)} />
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-1">
-                                            <label className="block text-indigo-300 mb-1 text-sm">Rent (BDT)</label>
-                                            <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="number" value={rent} onChange={e => setRent(e.target.value)} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="block text-indigo-300 mb-1 text-sm">Capacity</label>
-                                            <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="number" min="1" value={capacity} onChange={e => setCapacity(e.target.value)} />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-4">
-                                        <div className="flex-1">
-                                            <label className="block text-indigo-300 mb-1 text-sm">Floor No.</label>
-                                            <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="number" value={floor} onChange={e => setFloor(e.target.value)} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <label className="block text-indigo-300 mb-1 text-sm">Area (sq ft)</label>
-                                            <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="number" value={area} onChange={e => setArea(e.target.value)} />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between mt-2 px-2">
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={balcony} onChange={e => setBalcony(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Balcony Available</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={attachedBathroom} onChange={e => setAttachedBathroom(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Attached Bath</span>
-                                        </label>
-                                    </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Basic Info */}
+                            <div className="space-y-4">
+                                <h3 className="text-indigo-400 font-bold text-xs uppercase tracking-wider mb-2">Basic Info</h3>
+                                <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" placeholder="Location" value={location} onChange={e => setLocation(e.target.value)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" type="number" placeholder="Rent" value={rent} onChange={e => setRent(e.target.value)} />
+                                    <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" type="number" placeholder="Capacity" value={capacity} onChange={e => setCapacity(e.target.value)} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" type="number" placeholder="Floor" value={floor} onChange={e => setFloor(e.target.value)} />
+                                    <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" type="number" placeholder="Area" value={area} onChange={e => setArea(e.target.value)} />
+                                </div>
+                                <div className="flex gap-4 pt-2">
+                                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 w-full justify-center">
+                                        <input type="checkbox" checked={balcony} onChange={e => setBalcony(e.target.checked)} className="accent-indigo-500"/> <span className="text-sm">Balcony</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer bg-slate-800 px-3 py-2 rounded-lg border border-slate-700 w-full justify-center">
+                                        <input type="checkbox" checked={attachedBathroom} onChange={e => setAttachedBathroom(e.target.checked)} className="accent-indigo-500"/> <span className="text-sm">Attached Bath</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            {/* Preferences Section */}
-                            <div className="bg-[#1e2746] p-6 rounded-xl border border-slate-700">
-                                <h3 className="text-xl font-semibold text-indigo-300 mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                    Roommate Preferences
-                                </h3>
-
-                                <div className="flex flex-col gap-4">
-                                    <div>
-                                        <label className="block text-indigo-300 mb-1 text-sm">Personality Type</label>
-                                        <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="text" value={personalityType} onChange={e => setPersonalityType(e.target.value)} />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-indigo-300 mb-1 text-sm">Hobbies (comma separated)</label>
-                                        <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="text" value={hobbies} onChange={e => setHobbies(e.target.value)} />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-indigo-300 mb-1 text-sm">Food Habits</label>
-                                            <select className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white cursor-pointer border border-slate-600 focus:border-indigo-500 transition-colors" value={foodHabits} onChange={e => setFoodHabits(e.target.value)}>
-                                                <option value="">Select</option>
-                                                <option value="Vegetarian">Vegetarian</option>
-                                                <option value="Non-Vegetarian">Non-Vegetarian</option>
-                                                <option value="Vegan">Vegan</option>
-                                                <option value="Flexible">Flexible</option>
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-indigo-300 mb-1 text-sm">Sleep Schedule</label>
-                                            <select className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white cursor-pointer border border-slate-600 focus:border-indigo-500 transition-colors" value={sleepSchedule} onChange={e => setSleepSchedule(e.target.value)}>
-                                                <option value="">Select</option>
-                                                <option value="Early Bird">Early Bird</option>
-                                                <option value="Night Owl">Night Owl</option>
-                                                <option value="Flexible">Flexible</option>
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-indigo-300 mb-1 text-sm">Cleanliness Level</label>
-                                            <select className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white cursor-pointer border border-slate-600 focus:border-indigo-500 transition-colors" value={cleanlinessLevel} onChange={e => setCleanlinessLevel(e.target.value)}>
-                                                <option value="">Select</option>
-                                                <option value="Very Clean">Very Clean</option>
-                                                <option value="Moderate">Moderate</option>
-                                                <option value="Relaxed">Relaxed</option>
-                                            </select>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-indigo-300 mb-1 text-sm">Noise Tolerance</label>
-                                            <select className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white cursor-pointer border border-slate-600 focus:border-indigo-500 transition-colors" value={noiseTolerance} onChange={e => setNoiseTolerance(e.target.value)}>
-                                                <option value="">Select</option>
-                                                <option value="Quiet">Quiet</option>
-                                                <option value="Moderate">Moderate</option>
-                                                <option value="High">High</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-indigo-300 mb-1 text-sm">Medical Conditions (comma separated)</label>
-                                        <input className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white border border-slate-600 focus:border-indigo-500 transition-colors" type="text" value={medicalConditions} onChange={e => setMedicalConditions(e.target.value)} />
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={smoker} onChange={e => setSmoker(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Smoker</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={drinking} onChange={e => setDrinking(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Drinker</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={visitors} onChange={e => setVisitors(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Visitors Allowed</span>
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-300 transition-colors">
-                                            <input type="checkbox" checked={petsAllowed} onChange={e => setPetsAllowed(e.target.checked)} className="w-5 h-5 accent-indigo-500" />
-                                            <span>Pets Allowed</span>
-                                        </label>
-                                    </div>
+                            {/* Preferences */}
+                            <div className="space-y-4">
+                                <h3 className="text-indigo-400 font-bold text-xs uppercase tracking-wider mb-2">Preferences</h3>
+                                <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" placeholder="Personality Type" value={personalityType} onChange={e => setPersonalityType(e.target.value)} />
+                                <input className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" placeholder="Hobbies (comma separated)" value={hobbies} onChange={e => setHobbies(e.target.value)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <select className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" value={foodHabits} onChange={e => setFoodHabits(e.target.value)}>
+                                        <option value="">Food Habits</option>
+                                        <option value="Non-Vegetarian">Non-Veg</option>
+                                        <option value="Vegetarian">Veg</option>
+                                    </select>
+                                    <select className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" value={sleepSchedule} onChange={e => setSleepSchedule(e.target.value)}>
+                                        <option value="">Sleep Schedule</option>
+                                        <option value="Early Bird">Early Bird</option>
+                                        <option value="Night Owl">Night Owl</option>
+                                    </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm text-slate-300 pt-2">
+                                    <label className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500/50 transition-colors">
+                                        <input type="checkbox" checked={smoker} onChange={e => setSmoker(e.target.checked)} className="accent-indigo-500" />
+                                        <span>Smoker</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500/50 transition-colors">
+                                        <input type="checkbox" checked={drinking} onChange={e => setDrinking(e.target.checked)} className="accent-indigo-500" />
+                                        <span>Drinker</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500/50 transition-colors">
+                                        <input type="checkbox" checked={visitors} onChange={e => setVisitors(e.target.checked)} className="accent-indigo-500" />
+                                        <span>Visitors</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-indigo-500/50 transition-colors">
+                                        <input type="checkbox" checked={petsAllowed} onChange={e => setPetsAllowed(e.target.checked)} className="accent-indigo-500" />
+                                        <span>Pets</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-4 mt-6 border-t border-slate-700 pt-6">
+                        <div className="flex gap-4 mt-8 border-t border-slate-700 pt-6">
                             <button 
                                 onClick={() => setEditingRoom(null)}
-                                className="flex-1 bg-slate-700 text-white py-3 rounded-full font-bold hover:bg-slate-600 transition-colors">
+                                className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors border border-slate-700">
                                 Cancel
                             </button>
                             <button 
                                 onClick={handleUpdate}
                                 disabled={loading}
-                                className={`flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 py-3 rounded-full font-bold hover:scale-105 transition-all shadow-lg ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                className={`flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/20 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
                                 {loading ? 'Updating...' : 'Update Room'}
                             </button>
                         </div>

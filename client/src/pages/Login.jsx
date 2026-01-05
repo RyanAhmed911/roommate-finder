@@ -66,7 +66,7 @@ const Login = () => {
   {/*added by Nusayba*/}
   {/*added by Ryan*/}  
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)]">
+    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[#08101C]">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-40 sm:w-48 cursor-pointer"/>
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
         

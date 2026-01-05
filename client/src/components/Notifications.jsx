@@ -13,7 +13,7 @@ const Notifications = ({ requests, fetchRequests, onClose }) => {
             
             if (data.success) {
                 toast.success(data.message)
-                fetchRequests() // Refresh list in Navbar
+                fetchRequests()
             } else {
                 toast.error(data.message)
             }
@@ -39,9 +39,9 @@ const Notifications = ({ requests, fetchRequests, onClose }) => {
             
             <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
                 {requests.map((req) => {
-                    // Determine Type: If I (userData) am in the room users list, I am the Owner (Join Request).
-                    // Otherwise, I am a potential Tenant (Invite).
-                    const isOwner = req.roomId.users.some(id => String(id) === String(userData._id));
+                    if (!req.roomId) return null;
+
+                    const isOwner = req.roomId.users && req.roomId.users.some(id => String(id) === String(userData._id));
                     const isInvite = !isOwner;
 
                     return (
