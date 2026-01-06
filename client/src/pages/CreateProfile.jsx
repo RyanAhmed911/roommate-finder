@@ -275,7 +275,7 @@ const CreateProfile = () => {
                 label="Cleanliness Level" 
                 value={cleanlinessLevel} 
                 onChange={e => setCleanlinessLevel(e.target.value)} 
-                options={['Neat', 'Moderate', 'Laid-back']} 
+                options={['Low', 'Moderate', 'High']} 
               />
           </div>
 
