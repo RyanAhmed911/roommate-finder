@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Updated schema to include roommate preferences
 const roomSchema = new mongoose.Schema({
     location: { type: String, required: true },
     rent: { type: Number, required: true },
@@ -13,6 +12,18 @@ const roomSchema = new mongoose.Schema({
     pendingRequests: { type: [mongoose.Schema.Types.ObjectId], ref: 'user', default: [] },
     floor: { type: Number, required: true },
     area: { type: Number, required: true },
+
+    image: { type: String, default: '' },
+
+    roomType: { type: String, default: 'Shared' }, 
+    furnishingStatus: { type: String, default: 'Unfurnished' }, 
+    wifi: { type: Boolean, default: false },
+    refrigerator: { type: Boolean, default: false },
+    kitchenAccess: { type: Boolean, default: false },
+    parking: { type: Boolean, default: false },
+    elevator: { type: Boolean, default: false },
+    generator: { type: Boolean, default: false },
+    securityGuard: { type: Boolean, default: false },
     
     personalityType: { type: String, default: '' },
     hobbies: { type: [String], default: [] },

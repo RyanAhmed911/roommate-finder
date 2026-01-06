@@ -25,8 +25,51 @@ const Roommates = () => {
     const [filterNoise, setFilterNoise] = useState('')
     const [filterVisitors, setFilterVisitors] = useState('')
     const [filterPets, setFilterPets] = useState('')
-
     const [showFilters, setShowFilters] = useState(false) 
+    const [favoriteRoommateIds, setFavoriteRoommateIds] = useState(new Set())
+    const [compatibilityModal, setCompatibilityModal] = useState({open: false, score: null, roommate: null});
+
+    const checkRoommateCompatibility = async (roommateId, roommateName) => {
+        if (!userData) {
+            toast.error("Please login first");
+            navigate('/login');
+            return;
+        }
+
+        try {
+            axios.defaults.withCredentials = true;
+
+            const { data: roomData } = await axios.get(`${backendUrl}/api/room/my-rooms`);
+            const myPostedRooms = roomData.rooms.filter(r => r.status === true);
+            if (!roomData.success || myPostedRooms.length === 0) {
+                toast.info("Please post your room first to check compatibility.");
+                return;
+            }
+
+            const myRoom = myPostedRooms[0];
+
+            setCompatibilityModal({ open: true, score: null, roommate: { name: roommateName }, room: myRoom});
+
+            const { data } = await axios.post(
+                `${backendUrl}/api/compatibility/score`,
+                { userId: roommateId, roomId: myRoom._id },
+                { withCredentials: true }
+            );
+
+            if (data.success) {
+                setCompatibilityModal({open: true, score: data.compatibilityScore, roommate: { name: roommateName },room: myRoom});
+            } 
+            else {
+                toast.error(data.message || "Failed to calculate compatibility");
+                setCompatibilityModal({ open: false, score: null, roommate: null, room: null });
+            }
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to calculate compatibility");
+            setCompatibilityModal({ open: false, score: null, roommate: null, room: null });
+        }
+    };
 
     const fetchUsers = async () => {
         try {
@@ -69,6 +112,19 @@ const Roommates = () => {
         }
     }
 
+    const fetchFavoriteRoommates = async () => {
+        try {
+            axios.defaults.withCredentials = true
+            const { data } = await axios.get(`${backendUrl}/api/favorite-roommates`)
+            if (data.success) {
+                const ids = new Set((data.roommates || []).map(u => u._id))
+                setFavoriteRoommateIds(ids)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             fetchUsers();
@@ -76,6 +132,14 @@ const Roommates = () => {
         
         return () => clearTimeout(delayDebounce);
     }, [userData, searchName, searchLocation, searchInstitution, filterGender, filterSmoker, filterDrinking, filterFood, filterSleep, filterCleanliness, filterNoise, filterVisitors, filterPets])
+
+    useEffect(() => {
+        if (userData) {
+            fetchFavoriteRoommates()
+        } else {
+            setFavoriteRoommateIds(new Set())
+        }
+    }, [userData])
 
     const handleSendRequest = async (userId) => {
         if (!userData) {
@@ -93,7 +157,13 @@ const Roommates = () => {
                     toast.info("Please post your room details before sending requests.")
                     navigate('/post-room')
                 } else {
-                    toast.info("Request feature coming soon!")
+                    const { data: inviteData } = await axios.post(backendUrl + '/api/request/send', { receiverId: userId })
+                    
+                    if (inviteData.success) {
+                        toast.success(inviteData.message)
+                    } else {
+                        toast.error(inviteData.message)
+                    }
                 }
             } else {
                 toast.error(data.message)
@@ -103,46 +173,79 @@ const Roommates = () => {
         }
     }
 
+    const toggleFavoriteRoommate = async (roommateId) => {
+        if (!userData) {
+            toast.error("Please login to add favorites")
+            navigate('/login')
+            return
+        }
+
+        try {
+            axios.defaults.withCredentials = true
+            const isFav = favoriteRoommateIds.has(roommateId)
+
+            const endpoint = isFav
+                ? `${backendUrl}/api/favorite-roommates/remove`
+                : `${backendUrl}/api/favorite-roommates/add`
+
+            const { data } = await axios.post(endpoint, { roommateID: roommateId })
+
+            if (data.success) {
+                const updated = new Set(favoriteRoommateIds)
+                if (isFav) updated.delete(roommateId)
+                else updated.add(roommateId)
+                setFavoriteRoommateIds(updated)
+                toast.success(data.message)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#08101C]">
             <Navbar />
             
             <div className="container mx-auto px-4 py-24 sm:px-10">
-                <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-2 text-center">Find Your Future Roommate</h1>
-                <p className="text-center text-slate-500 mb-10">Connect with people compatible with your lifestyle.</p>
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-bold text-white mb-3">Find Your Future Roommate</h1>
+                    <p className="text-slate-400">Connect with people compatible with your lifestyle.</p>
+                </div>
                 
-                <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 mb-12 border border-slate-100">
+                <div className="max-w-6xl mx-auto bg-slate-900 rounded-2xl shadow-xl p-6 mb-12 border border-slate-700">
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div className="relative">
-                            <input type="text" placeholder="Search by Name..." value={searchName} onChange={(e) => setSearchName(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"/>
-                            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" placeholder="Search by Name..." value={searchName} onChange={(e) => setSearchName(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-indigo-500 outline-none transition-all placeholder-slate-500"/>
+                            <svg className="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
                         <div className="relative">
-                            <input type="text" placeholder="Search by Location..." value={searchLocation} onChange={(e) => setSearchLocation(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"/>
-                            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <input type="text" placeholder="Search by Location..." value={searchLocation} onChange={(e) => setSearchLocation(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-indigo-500 outline-none transition-all placeholder-slate-500"/>
+                            <svg className="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                         <div className="relative">
-                            <input type="text" placeholder="Search by Institution..." value={searchInstitution} onChange={(e) => setSearchInstitution(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"/>
-                            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            <input type="text" placeholder="Search by Institution..." value={searchInstitution} onChange={(e) => setSearchInstitution(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white focus:border-indigo-500 outline-none transition-all placeholder-slate-500"/>
+                            <svg className="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         </div>
                     </div>
 
                     <div className="flex justify-center mb-4">
                         <button 
                             onClick={() => setShowFilters(!showFilters)}
-                            className={`px-8 py-2 rounded-xl font-medium transition-all flex items-center gap-2 ${showFilters ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                            className={`px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 text-sm ${showFilters ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                            {showFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            {showFilters ? 'Hide Filters' : 'More Filters'}
                         </button>
                     </div>
 
                     <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-hidden transition-all duration-300 ease-in-out ${showFilters ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
                         
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Gender</label>
-                            <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Gender</label>
+                            <select value={filterGender} onChange={(e) => setFilterGender(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any Gender</option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
@@ -151,18 +254,17 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Food Habits</label>
-                            <select value={filterFood} onChange={(e) => setFilterFood(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Food Habits</label>
+                            <select value={filterFood} onChange={(e) => setFilterFood(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any Preference</option>
                                 <option value="Non-Vegetarian">Non-Vegetarian</option>
                                 <option value="Vegetarian">Vegetarian</option>
-                                <option value="Vegan">Vegan</option>
                             </select>
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Sleep Schedule</label>
-                            <select value={filterSleep} onChange={(e) => setFilterSleep(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Sleep Schedule</label>
+                            <select value={filterSleep} onChange={(e) => setFilterSleep(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any Preference</option>
                                 <option value="Early Bird">Early Bird</option>
                                 <option value="Night Owl">Night Owl</option>
@@ -171,18 +273,8 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Cleanliness</label>
-                            <select value={filterCleanliness} onChange={(e) => setFilterCleanliness(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
-                                <option value="">Any Preference</option>
-                                <option value="Neat">Neat</option>
-                                <option value="Moderate">Moderate</option>
-                                <option value="Laid-back">Laid-back</option>
-                            </select>
-                        </div>
-
-                        <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Noise Tolerance</label>
-                            <select value={filterNoise} onChange={(e) => setFilterNoise(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Cleanliness</label>
+                            <select value={filterCleanliness} onChange={(e) => setFilterCleanliness(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any Preference</option>
                                 <option value="Low">Low</option>
                                 <option value="Moderate">Moderate</option>
@@ -191,8 +283,18 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Smoking</label>
-                            <select value={filterSmoker} onChange={(e) => setFilterSmoker(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Noise Tolerance</label>
+                            <select value={filterNoise} onChange={(e) => setFilterNoise(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
+                                <option value="">Any Preference</option>
+                                <option value="Low">Low</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Smoking</label>
+                            <select value={filterSmoker} onChange={(e) => setFilterSmoker(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any</option>
                                 <option value="false">Non-Smoker</option>
                                 <option value="true">Smoker Allowed</option>
@@ -200,8 +302,8 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Drinking</label>
-                            <select value={filterDrinking} onChange={(e) => setFilterDrinking(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Drinking</label>
+                            <select value={filterDrinking} onChange={(e) => setFilterDrinking(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any</option>
                                 <option value="false">Non-Drinker</option>
                                 <option value="true">Drinker Allowed</option>
@@ -209,8 +311,8 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Visitors</label>
-                            <select value={filterVisitors} onChange={(e) => setFilterVisitors(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Visitors</label>
+                            <select value={filterVisitors} onChange={(e) => setFilterVisitors(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any</option>
                                 <option value="true">Allowed</option>
                                 <option value="false">Not Allowed</option>
@@ -218,8 +320,8 @@ const Roommates = () => {
                         </div>
 
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Pets</label>
-                            <select value={filterPets} onChange={(e) => setFilterPets(e.target.value)} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+                            <label className="text-xs font-semibold text-slate-400 uppercase">Pets</label>
+                            <select value={filterPets} onChange={(e) => setFilterPets(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any</option>
                                 <option value="true">Allowed</option>
                                 <option value="false">Not Allowed</option>
@@ -233,7 +335,7 @@ const Roommates = () => {
                      <div className="text-center py-20 text-slate-400">Loading...</div>
                 ) : users.length === 0 ? (
                     <div className="text-center py-20">
-                        <p className="text-xl text-gray-500">No matching roommates found.</p>
+                        <p className="text-xl text-slate-400">No matching roommates found.</p>
                         <button onClick={() => {
                             setSearchName('')
                             setSearchLocation('')
@@ -247,80 +349,136 @@ const Roommates = () => {
                             setFilterNoise('')
                             setFilterVisitors('')
                             setFilterPets('')
-                        }} className="mt-4 text-indigo-600 hover:underline">Clear Filters</button>
+                        }} className="mt-4 text-indigo-400 hover:text-indigo-300">Clear Filters</button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {users.map((user, index) => (
-                            <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full">
+                            <div key={index} className="bg-slate-900 rounded-2xl shadow-lg overflow-hidden border border-slate-700 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 flex flex-col h-full group">
                                 
-                                <div className="w-full h-72 relative bg-gray-200 group overflow-hidden">
+                                <div className="w-full h-72 relative bg-slate-800 group overflow-hidden">
                                     <div className="w-full h-full relative transition-transform duration-700 group-hover:scale-105">
                                         {user.image ? (
                                             <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-400 to-purple-500 text-white">
-                                                <span className="text-6xl font-bold opacity-80">{user.name[0].toUpperCase()}</span>
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-slate-600">
+                                                <span className="text-6xl font-bold opacity-50">{user.name[0].toUpperCase()}</span>
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </div>
 
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1 z-10">
-                                        <span className="text-xs font-bold text-slate-500">Match</span>
-                                        <span className="text-sm font-black text-green-600">85%</span>
+                                    <div className="absolute top-4 right-4 z-10">
+                                        <button
+                                            onClick={() => checkRoommateCompatibility(user._id, user.name)}
+                                            className="bg-slate-900/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg flex items-center gap-1 border border-purple-500/30
+                                                    hover:bg-purple-900/50 hover:scale-105 hover:shadow-xl transition-all duration-300"
+                                        >
+                                            <span className="text-xs font-bold text-purple-400">Check Compatibility</span>
+                                        </button>                        
                                     </div>
                                 </div>
 
                                 <div className="p-5 flex flex-col flex-1 gap-3">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h3 className="text-xl font-bold text-slate-800 leading-tight">{user.name}</h3>
-                                            <p className="text-indigo-500 font-medium text-sm mt-0.5">{user.institution || 'N/A'}</p>
+                                            <h3 className="text-xl font-bold text-white leading-tight">{user.name}</h3>
+                                            <p className="text-indigo-400 font-medium text-sm mt-0.5">{user.institution || 'N/A'}</p>
                                         </div>
-                                        {user.age && (
-                                            <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full font-bold border border-slate-200">
-                                                {user.age} yo
-                                            </span>
-                                        )}
+                                        
+                                        <div className="flex items-start gap-2">
+                                            {user.age && (
+                                                <span className="bg-slate-800 text-slate-300 text-xs px-2 py-2 rounded-full font-bold border border-slate-700">
+                                                    {user.age} yo
+                                                </span>
+                                            )}
+                                            <button 
+                                                onClick={() => toggleFavoriteRoommate(user._id)}
+                                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${favoriteRoommateIds.has(user._id) ? 'bg-pink-500/10 text-pink-500' : 'bg-slate-800 text-slate-500 hover:text-white'}`}
+                                            >
+                                                <svg className={`w-4 h-4 ${favoriteRoommateIds.has(user._id) ? 'fill-current' : 'fill-none'}`} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 mt-1 mb-2">
-                                        <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-blue-50 text-blue-600 border border-blue-100">
+                                        <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-blue-900/30 text-blue-400 border border-blue-800">
                                             {user.gender || 'Any'}
                                         </span>
                                         
-                                        <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${user.smoker ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${user.smoker ? 'bg-red-900/30 text-red-400 border-red-800' : 'bg-green-900/30 text-green-400 border-green-800'}`}>
                                             {user.smoker ? 'Smoker' : 'Non-Smoker'}
                                         </span>
 
-                                        <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${user.drinking ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-slate-50 text-slate-500 border-slate-200'}`}>
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded border ${user.drinking ? 'bg-purple-900/30 text-purple-400 border-purple-800' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
                                             {user.drinking ? 'Drinker' : 'No Drink'}
                                         </span>
 
                                         {user.foodHabits && (
-                                            <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-orange-50 text-orange-600 border border-orange-100">
+                                            <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-orange-900/30 text-orange-400 border border-orange-800">
                                                 {user.foodHabits}
                                             </span>
                                         )}
 
-                                        {user.cleanlinessLevel && (
-                                            <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-teal-50 text-teal-600 border border-teal-100">
-                                                {user.cleanlinessLevel} Clean
-                                            </span>
-                                        )}
                                     </div>
-
+                                    
                                     <div className="flex-1"></div>
-
-                                    <div className="grid grid-cols-2 gap-3 mt-2">
-                                        <button onClick={() => handleSendRequest(user._id)} className="py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg">Request</button>
-                                        <button onClick={() => navigate(`/view-profile/${user._id}`)} className="py-2.5 rounded-xl bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all">View Profile</button>
+                                       <div className="grid grid-cols-2 gap-3 mt-2">                                                                              
+                                        <button onClick={() => handleSendRequest(user._id)} className="py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/20">Send Request</button>
+                                        <button onClick={() => navigate(`/view-profile/${user._id}`)} className="py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 font-bold text-sm hover:bg-slate-700 hover:text-white transition-all">View Profile</button>
                                     </div>
 
                                 </div>
                             </div>
                         ))}
+
+                        {compatibilityModal.open && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+                            <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-700 overflow-hidden">
+                            
+                            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 flex justify-between items-start text-white">
+                                <h2 className="text-xl font-bold">Compatibility Score</h2>
+                                <button
+                                onClick={() => setCompatibilityModal({ open: false, score: null, roommate: null, room: null })}
+                                className="text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+                                >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                </button>
+                            </div>
+
+                           
+                            <div className="p-8 text-center">
+                                <p className="text-slate-400 mb-4 text-sm">
+                                Room: <span className="font-semibold text-white">{compatibilityModal.room?.location || 'Your Room'}</span>
+                                </p>
+
+                                {compatibilityModal.score === null ? (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-slate-400 text-sm">Processing...</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2 animate-scaleIn">
+                                        <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">
+                                            {compatibilityModal.score}%
+                                        </span>
+                                        <p className="text-slate-400 text-sm">Match Probability</p>
+                                    </div>
+                                )}
+
+                                <button
+                                onClick={() => setCompatibilityModal({ open: false, score: null, roommate: null, room: null })}
+                                className="mt-8 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm transition-colors border border-slate-700"
+                                >
+                                Close
+                                </button>
+                            </div>
+                            </div>
+                        </div>
+                        )}
+
                     </div>
                 )}
             </div>

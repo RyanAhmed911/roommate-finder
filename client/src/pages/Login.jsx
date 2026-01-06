@@ -66,7 +66,7 @@ const Login = () => {
   {/*added by Nusayba*/}
   {/*added by Ryan*/}  
   return (
-    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)]">
+    <div className="flex items-center justify-center min-h-screen px-6 sm:px-0 bg-[#08101C]">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-40 sm:w-48 cursor-pointer"/>
       <div className="bg-slate-900 p-10 rounded-lg shadow-lg w-full sm:w-96 text-indigo-300 text-sm">
         
@@ -89,7 +89,7 @@ const Login = () => {
             <input 
             onChange={e => setEmail(e.target.value)} 
             value={email} 
-            className="bg-transparent outline-none text-white" type="email" placeholder="Email id" required/>
+            className="bg-transparent outline-none text-white" type="email" placeholder="Email ID" required/>
           </div>
           
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">

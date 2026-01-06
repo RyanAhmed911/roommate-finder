@@ -1,49 +1,55 @@
-//Implemented by Nusayba
-
-export const calculateCompatibility = (userProfile, preferences) => {
+export const calculateCompatibility = (user, room) => {
     let score = 0;
-    let maxScore = 0;
+    let total = 0;
 
-    // Smoking
-    maxScore += 20;
-    if (preferences.smoker === userProfile.smoker) {
-        score += 20;
+    if (room.personalityType) {
+        total++;
+        if (user.personalityType === room.personalityType) score++;
     }
 
-    // Visitors
-    maxScore += 10;
-    if (preferences.visitors === userProfile.visitors) {
-        score += 10;
+    if (room.foodHabits) {
+        total++;
+        if (
+            user.foodHabits === room.foodHabits ||
+            room.foodHabits === 'Flexible'
+        ) score++;
     }
 
-    // Personality
-    maxScore += 15;
-    if (
-        preferences.personalityType &&
-        userProfile.personalityType &&
-        preferences.personalityType === userProfile.personalityType
-    ) {
-        score += 15;
+    if (room.sleepSchedule) {
+        total++;
+        if (
+            user.sleepSchedule === room.sleepSchedule ||
+            room.sleepSchedule === 'Flexible'
+        ) score++;
     }
 
-    // Hobbies overlap
-    maxScore += 15;
-    if (preferences.hobbies?.length && userProfile.hobbies?.length) {
-        const common = preferences.hobbies.filter(h =>
-            userProfile.hobbies.includes(h)
-        );
-        score += Math.min(15, common.length * 5);
+    if (room.cleanlinessLevel) {
+        total++;
+        if (user.cleanlinessLevel === room.cleanlinessLevel) score++;
     }
 
-    //Medical conditions mismatch
-    maxScore += 10;
-    if (preferences.medicalConditions?.length && userProfile.medicalConditions?.length) {
-        const conflict = preferences.medicalConditions.some(c =>
-            userProfile.medicalConditions.includes(c)
-        );
-        if (!conflict) score += 10;
+    if (room.noiseTolerance) {
+        total++;
+        if (user.noiseTolerance === room.noiseTolerance) score++;
     }
 
-    // Normalize to percentage
-    return Math.round((score / maxScore) * 100);
+    ['smoker', 'drinking', 'visitors', 'petsAllowed'].forEach(field => {
+        if (room[field] !== undefined) {
+            total++;
+            if (user[field] === room[field]) score++;
+        }
+    });
+
+    if (room.hobbies?.length) {
+        total++;
+        if (user.hobbies?.some(h => room.hobbies.includes(h))) score++;
+    }
+
+    if (user.medicalConditions?.includes('Asthma') && room.smoker) {
+        total++;
+    }
+
+    return total > 0 ? Math.round((score / total) * 100) : 0;
 };
+
+//Implemented by Nusayba

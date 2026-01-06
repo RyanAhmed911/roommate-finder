@@ -7,8 +7,12 @@ import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import roomRouter from './routes/roomRoutes.js';
 import favoritesRouter from './routes/favoritesRoutes.js';
+import expenseRouter from './routes/expenseRoutes.js';
+import requestRouter from './routes/requestRoutes.js';
 import compatibilityRouter from './routes/compatibilityRoutes.js';
-
+import favoriteRoommatesRouter from './routes/favoriteRoommatesRoutes.js';
+import choreRoutes from './routes/choreRoutes.js';
+import messageRouter from "./routes/messageRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -27,5 +31,10 @@ app.use('/api/user', userRouter);
 app.use('/api/room', roomRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/compatibility', compatibilityRouter);
+app.use('/api/expense', expenseRouter);
+app.use('/api/request', requestRouter);
+app.use('/api/favorite-roommates', favoriteRoommatesRouter);
+app.use('/api/chores', choreRoutes);
 
+app.use("/api/messages", messageRouter);
 app.listen(port, () => console.log(`Server running on port ${port}`));

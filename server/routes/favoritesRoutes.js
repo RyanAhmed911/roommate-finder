@@ -20,5 +20,6 @@ favoritesRouter.get('/check/:roomID', isFavorite);
 favoritesRouter.post('/add', addToFavorites);
 favoritesRouter.post('/remove', removeFromFavorites);
 favoritesRouter.delete('/clear', clearFavorites);
+
 export default favoritesRouter;
 // Prachurzo: From class diagram

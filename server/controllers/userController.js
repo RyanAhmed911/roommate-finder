@@ -1,6 +1,8 @@
 //This part was implemented by Ryan
 import userModel from '../models/userModel.js';
 import roomModel from '../models/roomModel.js';
+import preferencesModel from '../models/preferencesModel.js';
+
 
 export const getUserData = async (req, res) => {
     try {
@@ -14,6 +16,7 @@ export const getUserData = async (req, res) => {
         res.json({ 
             success: true, 
             userData: {
+                _id: user._id,
                 name: user.name,
                 isAccountVerified: user.isAccountVerified,
                 isProfileCompleted: user.isProfileCompleted,
@@ -33,10 +36,12 @@ export const getUserData = async (req, res) => {
                 languages: user.languages,
                 petsAllowed: user.petsAllowed,
                 drinking: user.drinking,
+                contactLinks: user.contactLinks,
                 cleanlinessLevel: user.cleanlinessLevel,
                 sleepSchedule: user.sleepSchedule,
                 noiseTolerance: user.noiseTolerance,
                 foodHabits: user.foodHabits
+                
             }  
         }); 
     } catch (error) {
@@ -145,7 +150,8 @@ export const updateUserProfile = async (req, res) => {
             cleanlinessLevel,
             sleepSchedule,
             noiseTolerance,
-            foodHabits
+            foodHabits,
+            contactLinks
         } = req.body;
 
         if (!userId) {
@@ -173,8 +179,34 @@ export const updateUserProfile = async (req, res) => {
             sleepSchedule,
             noiseTolerance,
             foodHabits,
+            contactLinks,
             isProfileCompleted: true
         });
+
+        //added by Nusayba
+        await preferencesModel.findOneAndUpdate(
+            { user: userId },           
+            {
+                user: userId,
+                hobbies,
+                age,
+                smoker,
+                personalityType,
+                medicalConditions,
+                institution,
+                gender,
+                visitors,
+                petsAllowed,
+                drinking,
+                cleanlinessLevel,
+                sleepSchedule,
+                noiseTolerance,
+                foodHabits
+            },
+            { upsert: true, new: true }  
+        );
+        //added by Nusayba
+
 
         if (!user) {
             return res.json({ success: false, message: 'User not found' });
@@ -185,4 +217,6 @@ export const updateUserProfile = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
+
+
 //This part was implemented by Ryan

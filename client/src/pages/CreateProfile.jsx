@@ -76,6 +76,7 @@ const CreateProfile = () => {
   const [visitors, setVisitors] = useState(false)
   const [petsAllowed, setPetsAllowed] = useState(false)
   const [drinking, setDrinking] = useState(false)
+  const [contactLinks, setContactLinks] = useState({whatsapp: '', instagram: '', facebook: '',linkedin: ''})
 
   React.useEffect(() => {
     if (userData) {
@@ -100,7 +101,26 @@ const CreateProfile = () => {
       if (Array.isArray(userData.hobbies)) setHobbies(userData.hobbies.join(', '))
       if (Array.isArray(userData.medicalConditions)) setMedicalConditions(userData.medicalConditions.join(', '))
       if (userData.image) setImagePreview(userData.image)
+      if (userData.contactLinks) {
+      if (Array.isArray(userData.contactLinks)) {
+        const linksObj = { whatsapp: '', instagram: '', facebook: '', linkedin: '' }
+        userData.contactLinks.forEach(link => {
+          if (link.label === 'WhatsApp') linksObj.whatsapp = link.url
+          if (link.label === 'Instagram') linksObj.instagram = link.url
+          if (link.label === 'Facebook') linksObj.facebook = link.url
+          if (link.label === 'LinkedIn') linksObj.linkedin = link.url
+        })
+        setContactLinks(linksObj)
+      } else {
+        setContactLinks({
+          whatsapp: userData.contactLinks.whatsapp || '',
+          instagram: userData.contactLinks.instagram || '',
+          facebook: userData.contactLinks.facebook || '',
+          linkedin: userData.contactLinks.linkedin || ''
+        })
+      }
     }
+      }
   }, [userData])
 
   const handleImageChange = (e) => {
@@ -134,6 +154,13 @@ const CreateProfile = () => {
         imageBase64 = await convertToBase64(image);
       }
 
+      const contactLinksArray = [
+      contactLinks.whatsapp && { label: 'WhatsApp', url: contactLinks.whatsapp },
+      contactLinks.instagram && { label: 'Instagram', url: contactLinks.instagram },
+      contactLinks.facebook && { label: 'Facebook', url: contactLinks.facebook },
+      contactLinks.linkedin && { label: 'LinkedIn', url: contactLinks.linkedin }
+    ].filter(Boolean)
+
       const { data } = await axios.post(backendUrl + '/api/user/update-profile', {
         userId: userData?._id,
         age: Number(age),
@@ -156,6 +183,7 @@ const CreateProfile = () => {
         petsAllowed,
         drinking,
         image: imageBase64,
+        contactLinks: contactLinksArray
       })
 
       if (data.success) {
@@ -172,7 +200,7 @@ const CreateProfile = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-[radial-gradient(circle_at_50%_30%,_#f5f3ff,_#c4b5fd,_#7c3aed)] py-10">
+    <div className="flex items-center justify-center min-h-screen px-4 sm:px-0 bg-[#08101C] py-10">
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className="absolute left-5 sm:left-20 top-5 w-32 sm:w-40 cursor-pointer" />
       
       <div className="bg-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl w-full max-w-2xl text-sm mt-20 sm:my-10">
@@ -206,7 +234,13 @@ const CreateProfile = () => {
           {/* Age & Gender */}
           <div className='flex flex-col sm:flex-row gap-6'>
             <div className="flex-1">
-                <InputField label="Age" value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="e.g. 24" required />
+                <InputField label="Age" value={age} type="number" placeholder="e.g 24 "required onChange={e => {const val = e.target.value;
+                if (val=== ''){
+                  setAge('');                  
+                  }else{
+                    const num = Math.max(0,Number(val));
+                    setAge(num)}
+                  }} min={0}/>
             </div>
             <div className="flex-1 flex flex-col gap-2">
                <label className="text-indigo-300 text-sm font-medium ml-2">Gender <span className="text-red-400">*</span></label>
@@ -220,7 +254,6 @@ const CreateProfile = () => {
                       <option value="" disabled hidden>Select Gender</option>
                       <option value="Male" className="text-slate-900">Male</option>
                       <option value="Female" className="text-slate-900">Female</option>
-                      <option value="Non-Binary" className="text-slate-900">Non-Binary</option>
                       <option value="Other" className="text-slate-900">Other</option>
                   </select>
                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-indigo-400">
@@ -228,6 +261,7 @@ const CreateProfile = () => {
                   </div>
                </div>
             </div>
+            
           </div>
 
           <InputField label="Current Location" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Area" required />
@@ -249,8 +283,40 @@ const CreateProfile = () => {
             <div className="flex-1">
                 <InputField label="Languages Spoken" value={languages} onChange={e => setLanguages(e.target.value)} placeholder="English, Bengali..." />
             </div>
+            
           </div>
+          <div className="border-t border-slate-700 pt-4">
+            <h3 className="text-white font-medium mb-2 ml-2">Contact Links</h3>
 
+            <InputField
+              label="WhatsApp"
+              value={contactLinks.whatsapp}
+              onChange={e => setContactLinks({ ...contactLinks, whatsapp: e.target.value })}
+              placeholder="+8801XXXXXXXXX"
+            />
+
+            <InputField
+              label="Instagram"
+              value={contactLinks.instagram}
+              onChange={e => setContactLinks({ ...contactLinks, instagram: e.target.value })}
+              placeholder="Instagram profile URL"
+            />
+
+            <InputField
+              label="Facebook"
+              value={contactLinks.facebook}
+              onChange={e => setContactLinks({ ...contactLinks, facebook: e.target.value })}
+              placeholder="Facebook profile URL"
+            />
+
+            <InputField
+              label="LinkedIn"
+              value={contactLinks.linkedin}
+              onChange={e => setContactLinks({ ...contactLinks, linkedin: e.target.value })}
+              placeholder="LinkedIn profile URL"
+            />
+          </div>
+  
           <div className="my-2 border-b border-slate-700"></div>
           <h3 className="text-white font-medium mb-2 ml-2">Personality & Lifestyle</h3>
 
@@ -269,13 +335,13 @@ const CreateProfile = () => {
                 label="Food Habits" 
                 value={foodHabits} 
                 onChange={e => setFoodHabits(e.target.value)} 
-                options={['Non-Vegetarian', 'Vegetarian', 'Vegan']} 
+                options={['Non-Vegetarian', 'Vegetarian']} 
               />
                <SelectField 
                 label="Cleanliness Level" 
                 value={cleanlinessLevel} 
                 onChange={e => setCleanlinessLevel(e.target.value)} 
-                options={['Neat', 'Moderate', 'Laid-back']} 
+                options={['Low', 'Moderate', 'High']} 
               />
           </div>
 

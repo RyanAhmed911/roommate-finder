@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     sleepSchedule: { type: String, default: '' }, 
     noiseTolerance: { type: String, default: '' }, 
     foodHabits: { type: String, default: '' },
+    contactLinks: { type: [{label: { type: String }, url: { type: String }}],default: []}
     //Ryan: Added some more attributes for better matching
 })
 
