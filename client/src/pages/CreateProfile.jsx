@@ -206,7 +206,13 @@ const CreateProfile = () => {
           {/* Age & Gender */}
           <div className='flex flex-col sm:flex-row gap-6'>
             <div className="flex-1">
-                <InputField label="Age" value={age} onChange={e => setAge(e.target.value)} type="number" placeholder="e.g. 24" required />
+                <InputField label="Age" value={age} type="number" placeholder="e.g 24 "required onChange={e => {const val = e.target.value;
+                if (val=== ''){
+                  setAge('');                  
+                  }else{
+                    const num = Math.max(0,Number(val));
+                    setAge(num)}
+                  }} min={0}/>
             </div>
             <div className="flex-1 flex flex-col gap-2">
                <label className="text-indigo-300 text-sm font-medium ml-2">Gender <span className="text-red-400">*</span></label>
@@ -220,7 +226,6 @@ const CreateProfile = () => {
                       <option value="" disabled hidden>Select Gender</option>
                       <option value="Male" className="text-slate-900">Male</option>
                       <option value="Female" className="text-slate-900">Female</option>
-                      <option value="Non-Binary" className="text-slate-900">Non-Binary</option>
                       <option value="Other" className="text-slate-900">Other</option>
                   </select>
                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-indigo-400">
