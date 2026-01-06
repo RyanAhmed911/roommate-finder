@@ -232,8 +232,6 @@ const PostRoom = () => {
                                         <option value="">Select Food Habits</option>
                                         <option value="Vegetarian">Vegetarian</option>
                                         <option value="Non-Vegetarian">Non-Vegetarian</option>
-                                        <option value="Vegan">Vegan</option>
-                                        <option value="Flexible">Flexible</option>
                                     </select>
                                 </div>
 

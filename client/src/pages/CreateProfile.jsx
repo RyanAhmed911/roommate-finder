@@ -269,7 +269,7 @@ const CreateProfile = () => {
                 label="Food Habits" 
                 value={foodHabits} 
                 onChange={e => setFoodHabits(e.target.value)} 
-                options={['Non-Vegetarian', 'Vegetarian', 'Vegan']} 
+                options={['Non-Vegetarian', 'Vegetarian']} 
               />
                <SelectField 
                 label="Cleanliness Level" 

@@ -164,12 +164,6 @@ const FavouriteRoommates = () => {
                                                 {user.foodHabits}
                                             </span>
                                         )}
-
-                                        {user.cleanlinessLevel && (
-                                            <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-teal-900/30 text-teal-400 border border-teal-800">
-                                                {user.cleanlinessLevel} Clean
-                                            </span>
-                                        )}
                                     </div>
 
                                     <div className="flex-1"></div>

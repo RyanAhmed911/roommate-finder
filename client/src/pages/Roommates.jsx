@@ -259,7 +259,6 @@ const Roommates = () => {
                                 <option value="">Any Preference</option>
                                 <option value="Non-Vegetarian">Non-Vegetarian</option>
                                 <option value="Vegetarian">Vegetarian</option>
-                                <option value="Vegan">Vegan</option>
                             </select>
                         </div>
 
