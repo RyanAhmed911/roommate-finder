@@ -110,7 +110,6 @@ const Navbar = () => {
             My Posts
           </button>
 
-          {/* ===== FAVORITES ===== */}
           <div ref={favoritesRef} className="relative">
             <button
               onClick={() => {
@@ -162,7 +161,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* ===== NOTIFICATIONS ===== */}
           <div ref={notificationsRef} className="relative">
             <button
               onClick={() => {
@@ -202,7 +200,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* ===== PROFILE (CLICK, NOT HOVER) ===== */}
           <div ref={profileRef} className="relative">
             <button
               onClick={() => {
@@ -252,7 +249,7 @@ const Navbar = () => {
       ) : (
         <button
           onClick={() => navigate('/login')}
-          className="flex items-center gap-2 border border-gray-500 rounded-full px-6 py-2 hover:bg-gray-100 transition"
+          className="flex items-center gap-2 text-gray-700 border border-gray-500 rounded-full px-6 py-2 hover:bg-gray-100 transition"
         >
           Login
           <img src={assets.arrow_icon} alt="" />
