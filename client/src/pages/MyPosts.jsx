@@ -10,12 +10,14 @@ import { useNavigate } from 'react-router-dom'
 const MyPosts = () => {
     const { backendUrl, userData } = useContext(AppContent)
     const navigate = useNavigate()
-    const [allRooms, setAllRooms] = useState([]) // To check if user has ANY room
-    const [activePosts, setActivePosts] = useState([]) // To show only POSTED rooms
+    const [allRooms, setAllRooms] = useState([])
+    const [activePosts, setActivePosts] = useState([])
     const [editingRoom, setEditingRoom] = useState(null)
     const [loading, setLoading] = useState(false)
 
     // Form States for Edit Modal
+    const [image, setImage] = useState(false)
+    const [imagePreview, setImagePreview] = useState('')
     const [location, setLocation] = useState('')
     const [rent, setRent] = useState('')
     const [capacity, setCapacity] = useState(1)
@@ -41,7 +43,6 @@ const MyPosts = () => {
             const { data } = await axios.get(backendUrl + '/api/room/my-rooms')
             if (data.success) {
                 setAllRooms(data.rooms)
-                // Only show rooms that are currently active (posted)
                 const posted = data.rooms.filter(room => room.status === true)
                 setActivePosts(posted)
             } else {
@@ -60,13 +61,11 @@ const MyPosts = () => {
         }
     }, [userData])
 
-    // Logic: Unpost the room (Status = false) instead of deleting data
     const handleDeletePost = async (roomId) => {
         if (!window.confirm("Are you sure you want to remove this post? The room will remain in your dashboard.")) return
         
         try {
             axios.defaults.withCredentials = true
-            // Update status to false (Unpost)
             const { data } = await axios.put(backendUrl + '/api/room/' + roomId, { status: false })
             
             if (data.success) {
@@ -80,7 +79,6 @@ const MyPosts = () => {
         }
     }
 
-    // Logic: Check room existence before navigating
     const handleCreatePost = () => {
         if (allRooms.length === 0) {
             toast.info("You need to create a room first.")
@@ -89,6 +87,23 @@ const MyPosts = () => {
             navigate('/post-room')
         }
     }
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    }
+
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => resolve(fileReader.result);
+            fileReader.onerror = (error) => reject(error);
+        });
+    };
 
     const startEditing = (room) => {
         setEditingRoom(room)
@@ -110,6 +125,8 @@ const MyPosts = () => {
         setDrinking(room.drinking || false)
         setVisitors(room.visitors || false)
         setPetsAllowed(room.petsAllowed || false)
+        if (room.image) setImagePreview(room.image)
+        setImage(false)
     }
 
     const handleUpdate = async () => {
@@ -120,16 +137,23 @@ const MyPosts = () => {
             const hobbiesArray = hobbies.split(',').map(h => h.trim()).filter(Boolean)
             const medicalArray = medicalConditions.split(',').map(m => m.trim()).filter(Boolean)
 
+            let imageBase64 = editingRoom.image || "";
+            if (image) {
+                imageBase64 = await convertToBase64(image);
+            }
+
             const { data } = await axios.put(backendUrl + '/api/room/' + editingRoom._id, {
                 location, rent, capacity, floor, area, balcony, attachedBathroom,
                 personalityType, hobbies: hobbiesArray, foodHabits, sleepSchedule,
                 cleanlinessLevel, noiseTolerance, medicalConditions: medicalArray,
-                smoker, drinking, visitors, petsAllowed
+                smoker, drinking, visitors, petsAllowed, image: imageBase64
             })
 
             if (data.success) {
                 toast.success("Room details updated")
                 setEditingRoom(null)
+                setImage(false)
+                setImagePreview('')
                 fetchMyRooms()
             } else {
                 toast.error(data.message)
@@ -167,13 +191,22 @@ const MyPosts = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {activePosts.map(room => (
                             <div key={room._id} className="bg-slate-900 rounded-2xl shadow-lg border border-slate-700 overflow-hidden flex flex-col h-full hover:border-indigo-500/30 transition-all duration-300 group">
-                                <div className="h-40 bg-slate-800 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 relative">
-                                    <div className="text-center">
-                                        <h3 className="text-xl font-bold text-white">{room.location}</h3>
-                                        <p className="text-slate-400 text-sm">৳ {room.rent} / month</p>
-                                    </div>
-                                    <div className="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-green-900/30 text-green-400 border border-green-800">
+                                {/* Room Image */}
+                                <div className="h-40 bg-slate-800 flex items-center justify-center relative overflow-hidden">
+                                    {room.image ? (
+                                        <img src={room.image} alt={room.location} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    ) : (
+                                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 w-full h-full flex flex-col items-center justify-center">
+                                            <svg className="w-12 h-12 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                            <p className="text-slate-500 text-sm font-bold">No Image</p>
+                                        </div>
+                                    )}
+                                    <div className="absolute top-4 right-4 text-xs font-bold px-3 py-1 rounded-full bg-green-900/30 text-green-400 border border-green-800 backdrop-blur-sm">
                                         Active
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                                        <h3 className="text-xl font-bold text-white">{room.location}</h3>
+                                        <p className="text-slate-300 text-sm">৳ {room.rent} / month</p>
                                     </div>
                                 </div>
                                 
@@ -218,9 +251,29 @@ const MyPosts = () => {
                     <div className="bg-slate-900 rounded-2xl w-full max-w-3xl border border-slate-700 p-8 relative my-8 shadow-2xl animate-fadeIn">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold text-white">Edit Room Details</h2>
-                            <button onClick={() => setEditingRoom(null)} className="text-slate-400 hover:text-white">✕</button>
+                            <button onClick={() => { setEditingRoom(null); setImage(false); setImagePreview(''); }} className="text-slate-400 hover:text-white">✕</button>
                         </div>
                         
+                        {/* Image Upload Section */}
+                        <div className="mb-6 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                            <h3 className="text-indigo-400 font-bold text-xs uppercase tracking-wider mb-3">Room Image</h3>
+                            <div className="flex flex-col items-center gap-4">
+                                <label htmlFor="room-image-edit" className="cursor-pointer group relative">
+                                    <div className="w-32 h-32 rounded-xl overflow-hidden border-4 border-slate-700 group-hover:border-indigo-500 transition-all flex items-center justify-center bg-slate-800">
+                                        {imagePreview ? (
+                                            <img src={imagePreview} alt="Room" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <svg className="w-12 h-12 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                        )}
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <p className="text-white text-xs font-semibold">Change Image</p>
+                                    </div>
+                                </label>
+                                <input onChange={handleImageChange} type="file" id="room-image-edit" hidden accept="image/*" />
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Basic Info */}
                             <div className="space-y-4">
@@ -284,7 +337,7 @@ const MyPosts = () => {
 
                         <div className="flex gap-4 mt-8 border-t border-slate-700 pt-6">
                             <button 
-                                onClick={() => setEditingRoom(null)}
+                                onClick={() => { setEditingRoom(null); setImage(false); setImagePreview(''); }}
                                 className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors border border-slate-700">
                                 Cancel
                             </button>

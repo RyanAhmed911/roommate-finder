@@ -118,7 +118,6 @@ const Rooms = () => {
                 ? `${backendUrl}/api/favorites/remove`
                 : `${backendUrl}/api/favorites/add`
 
-            // FIX: Sending roomID instead of roomId to match backend controller
             const { data } = await axios.post(endpoint, { roomID: roomId })
 
             if (data.success) {
@@ -170,7 +169,6 @@ const Rooms = () => {
         }
     };
 
-    // Helper component for Amenities
     const Badge = ({ label, color }) => {
         const colors = {
             blue: "bg-blue-900/30 text-blue-400 border-blue-800",
@@ -274,10 +272,14 @@ const Rooms = () => {
                                 <div key={room._id} className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group flex flex-col">
                                     {/* Image / Placeholder */}
                                     <div className="h-48 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition-opacity">
-                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-gradient-to-br from-slate-800 to-slate-900">
-                                            <svg className="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                            <span className="text-sm font-bold tracking-wider opacity-50">NO IMAGE</span>
-                                        </div>
+                                        {room.image ? (
+                                            <img src={room.image} alt={room.location} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        ) : (
+                                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-gradient-to-br from-slate-800 to-slate-900">
+                                                <svg className="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                                <span className="text-sm font-bold tracking-wider opacity-50">NO IMAGE</span>
+                                            </div>
+                                        )}
                                         <div className="absolute top-4 right-4 flex gap-2">
                                             <span className="bg-slate-900/80 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full border border-slate-700">
                                                 {room.roomType || 'Shared'}
@@ -338,7 +340,6 @@ const Rooms = () => {
                                                     className="px-3 py-1.5 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 text-xs font-bold rounded-lg transition-colors border border-purple-600/20">
                                                     Check Compatibility
                                                 </button>
-                                                {/* Re-added View Details */}
                                                 <button 
                                                     onClick={() => setDetailsModal({open: true, room: room})}
                                                     className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg transition-colors">
@@ -392,6 +393,13 @@ const Rooms = () => {
                 {detailsModal.open && detailsModal.room && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
                         <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-700 overflow-hidden relative max-h-[90vh] flex flex-col">
+                            {/* Room Image Header */}
+                            {detailsModal.room.image && (
+                                <div className="h-64 w-full overflow-hidden">
+                                    <img src={detailsModal.room.image} alt={detailsModal.room.location} className="w-full h-full object-cover" />
+                                </div>
+                            )}
+
                             {/* Header */}
                             <div className="p-6 border-b border-slate-800 flex justify-between items-start bg-slate-800/50">
                                 <div>
