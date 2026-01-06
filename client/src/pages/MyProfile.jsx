@@ -102,7 +102,18 @@ const MyProfile = () => {
                                 </div>
                             </div>
                         </div>
-
+{Array.isArray(userData.contactLinks) && userData.contactLinks.length > 0 && (
+                            <div className="bg-[#333A5C] p-4 rounded-lg col-span-1 md:col-span-2 lg:col-span-3">
+                                <span className="text-indigo-300 block mb-2 font-medium">Contact Links</span>
+                                <div className="flex flex-col gap-1">
+                                    {userData.contactLinks.map((link, index) => (
+                                        <p key={index}>
+                                            <span className="text-gray-400">{link.label}:</span> {link.url}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         {/* Medical */}
                          {userData.medicalConditions && userData.medicalConditions.length > 0 && (
                             <div className="bg-[#333A5C] p-4 rounded-lg col-span-1 md:col-span-2 lg:col-span-3">

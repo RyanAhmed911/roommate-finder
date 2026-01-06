@@ -36,10 +36,12 @@ export const getUserData = async (req, res) => {
                 languages: user.languages,
                 petsAllowed: user.petsAllowed,
                 drinking: user.drinking,
+                contactLinks: user.contactLinks,
                 cleanlinessLevel: user.cleanlinessLevel,
                 sleepSchedule: user.sleepSchedule,
                 noiseTolerance: user.noiseTolerance,
                 foodHabits: user.foodHabits
+                
             }  
         }); 
     } catch (error) {
@@ -148,7 +150,8 @@ export const updateUserProfile = async (req, res) => {
             cleanlinessLevel,
             sleepSchedule,
             noiseTolerance,
-            foodHabits
+            foodHabits,
+            contactLinks
         } = req.body;
 
         if (!userId) {
@@ -176,6 +179,7 @@ export const updateUserProfile = async (req, res) => {
             sleepSchedule,
             noiseTolerance,
             foodHabits,
+            contactLinks,
             isProfileCompleted: true
         });
 

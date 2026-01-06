@@ -54,7 +54,7 @@ export const createRoom = async (req, res) => {
 
 export const getAvailableRooms = async (req, res) => {
     try {
-        const rooms = await roomModel.find({ status: true }).populate('users', 'name email image');
+        const rooms = await roomModel.find({ status: true }).populate('users', 'name email image contactLinks');
         res.json({ success: true, rooms });
     } catch (error) {
         res.json({ success: false, message: error.message });
