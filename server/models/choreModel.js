@@ -1,15 +1,34 @@
 import mongoose from "mongoose";
 
-// Prachurzo: From class diagram
 const choreSchema = new mongoose.Schema({
-    cooking: { type: String, required: true },
-    sashingDishes: { type: String, required: true },
-    cleaningRooms: { type: String, required: true },
-    sweeping: { type: String, required: true },
-    dustingFurnitures: { type: String, required: true },
-    shopping: { type:String,required: true }
+  room: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Room",
+    required: true
+  },
+
+  assignments: {
+    cooking: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    washingDishes: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    cleaningRooms: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    sweeping: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    dustingFurniture: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    shopping: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+  },
+
+  completed: {
+    cooking: Boolean,
+    washingDishes: Boolean,
+    cleaningRooms: Boolean,
+    sweeping: Boolean,
+    dustingFurniture: Boolean,
+    shopping: Boolean
+  },
+
+  lastRotation: {
+    type: Date,
+    default: new Date(0)
+  }
 });
 
-const choreModel = mongoose.models.chore || mongoose.model('chore', choreSchema);
-
-export default choreModel;
+export default mongoose.model("Chore", choreSchema);
