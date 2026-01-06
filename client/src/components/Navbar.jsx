@@ -8,8 +8,7 @@ import axios from 'axios'
 
 const Navbar = () => {
   const navigate = useNavigate()
-  const { userData, backendUrl, setUserData, setIsLoggedin } =
-    useContext(AppContent)
+  const { userData, backendUrl, setUserData, setIsLoggedin } = useContext(AppContent)
 
   const [showNotifications, setShowNotifications] = useState(false)
   const [showFavorites, setShowFavorites] = useState(false)

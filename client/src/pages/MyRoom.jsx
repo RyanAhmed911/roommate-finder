@@ -481,7 +481,6 @@ const MyRoom = () => {
     )
 }
 
-// Helper to display badges
 const Badge = ({ label, color }) => {
     const colors = {
         blue: "bg-blue-900/30 text-blue-400 border-blue-800",

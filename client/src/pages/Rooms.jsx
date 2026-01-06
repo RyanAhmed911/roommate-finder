@@ -14,7 +14,6 @@ const Rooms = () => {
     const [compatibilityModal, setCompatibilityModal] = useState({ open: false, score: null, room: null });
     const [detailsModal, setDetailsModal] = useState({ open: false, room: null });
 
-    // Search & Filter States
     const [searchLocation, setSearchLocation] = useState('')
     const [minRent, setMinRent] = useState('')
     const [maxRent, setMaxRent] = useState('')
@@ -316,7 +315,7 @@ const Rooms = () => {
                                         </div>
 
                                         <div className="mt-auto pt-4 border-t border-slate-800 flex items-center justify-between">
-                                            {/* User Info with Profile Picture */}
+                                            {/* User Info */}
                                             <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
                                                     {owner && owner.image ? (
@@ -388,11 +387,10 @@ const Rooms = () => {
                     </div>
                 )}
 
-                {/* View Details Modal */}
+                {/* View Details */}
                 {detailsModal.open && detailsModal.room && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
                         <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl border border-slate-700 overflow-hidden relative max-h-[90vh] flex flex-col">
-                            {/* Room Image Header */}
                             {detailsModal.room.image && (
                                 <div className="h-64 w-full overflow-hidden">
                                     <img src={detailsModal.room.image} alt={detailsModal.room.location} className="w-full h-full object-cover" />
@@ -599,7 +597,6 @@ const Rooms = () => {
                                 </div>
                             </div>
 
-                            {/* Footer Actions */}
                             <div className="p-6 border-t border-slate-800 bg-slate-900 flex gap-4">
                                 <button 
                                     onClick={() => handleSendRequest(detailsModal.room._id)}

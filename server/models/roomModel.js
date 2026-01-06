@@ -13,7 +13,6 @@ const roomSchema = new mongoose.Schema({
     floor: { type: Number, required: true },
     area: { type: Number, required: true },
 
-    // Added image field for room picture
     image: { type: String, default: '' },
 
     roomType: { type: String, default: 'Shared' }, 

@@ -45,7 +45,7 @@ const Expenses = ({ roomId, onClose }) => {
                 setTitle('')
                 setAmount('')
                 setDueDate('')
-                fetchExpenses() // Refresh list
+                fetchExpenses()
             } else {
                 toast.error(data.message)
             }

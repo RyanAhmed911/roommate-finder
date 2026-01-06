@@ -190,7 +190,7 @@ const ViewProfile = () => {
                         </div>
                     )}
 
-                    {/* Preferences Toggles Display */}
+                    {/* Preferences */}
                     <div className="mb-8">
                         <h3 className="text-indigo-300 mb-4 font-bold uppercase text-xs tracking-wider">Preferences & Dealbreakers</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm font-medium">
@@ -213,7 +213,6 @@ const ViewProfile = () => {
                         </div>
                     </div>
 
-                    {/* Bottom Action Button */}
                     <div className="flex justify-center">
                          <button 
                             onClick={handleSendRequest}
