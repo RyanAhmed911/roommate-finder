@@ -40,14 +40,9 @@ const Rooms = () => {
             const { data } = await axios.get(`${backendUrl}${endpoint}?${params.toString()}`)
             
             if (data.success) {
-                let allRooms = data.rooms
-                if (userData) {
-                    allRooms = allRooms.filter(room => 
-                        !room.users.some(user => String(user._id) === String(userData._id))
-                    )
-                }
-                setRooms(allRooms)
+                setRooms(data.rooms)
             }
+
         } catch (error) {
             toast.error(error.message)
         }
@@ -188,6 +183,10 @@ const Rooms = () => {
         )
     }
 
+    const displayedRooms = userData 
+        ? rooms.filter(room => !room.users.some(user => String(user._id) === String(userData._id)))
+        : rooms;
+
     return (
         <div className="min-h-screen bg-[#08101C]">
             <Navbar />
@@ -258,14 +257,14 @@ const Rooms = () => {
                 </div>
 
                 {/* Room Grid */}
-                {rooms.length === 0 ? (
+                {displayedRooms.length === 0 ? (
                     <div className="text-center py-20">
                         <p className="text-xl text-slate-400">No rooms found matching your criteria.</p>
                         <button onClick={() => { setSearchLocation(''); setMinRent(''); setMaxRent(''); setFilterBalcony(false); setFilterAttachedBath(false); }} className="mt-4 text-indigo-400 hover:text-indigo-300">Clear all filters</button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {rooms.map((room) => {
+                        {displayedRooms.map((room) => {
                             const owner = room.users && room.users.length > 0 ? room.users[0] : null;
 
                             return (

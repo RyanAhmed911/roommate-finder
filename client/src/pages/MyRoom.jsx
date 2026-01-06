@@ -253,7 +253,7 @@ const MyRoom = () => {
                             </div>
 
                             <button className="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold mt-4 hover:bg-indigo-700 transition-all shadow-lg">
-                                Create Room (Private)
+                                Create Room
                             </button>
                         </form>
                     </div>
@@ -290,7 +290,7 @@ const MyRoom = () => {
 
                                     {!isEditing ? (
                                         <div className="flex flex-col gap-6">
-                                            {/* Redesigned Details Section */}
+                                            {/* Details Section */}
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                                                 <div className="flex flex-col gap-1 pb-4 border-b border-slate-800 sm:border-0">
                                                     <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Location</span>
