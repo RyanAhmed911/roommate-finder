@@ -76,6 +76,7 @@ const CreateProfile = () => {
   const [visitors, setVisitors] = useState(false)
   const [petsAllowed, setPetsAllowed] = useState(false)
   const [drinking, setDrinking] = useState(false)
+  const [contactLinks, setContactLinks] = useState({whatsapp: '', instagram: '', facebook: '',linkedin: ''})
 
   React.useEffect(() => {
     if (userData) {
@@ -100,7 +101,26 @@ const CreateProfile = () => {
       if (Array.isArray(userData.hobbies)) setHobbies(userData.hobbies.join(', '))
       if (Array.isArray(userData.medicalConditions)) setMedicalConditions(userData.medicalConditions.join(', '))
       if (userData.image) setImagePreview(userData.image)
+      if (userData.contactLinks) {
+      if (Array.isArray(userData.contactLinks)) {
+        const linksObj = { whatsapp: '', instagram: '', facebook: '', linkedin: '' }
+        userData.contactLinks.forEach(link => {
+          if (link.label === 'WhatsApp') linksObj.whatsapp = link.url
+          if (link.label === 'Instagram') linksObj.instagram = link.url
+          if (link.label === 'Facebook') linksObj.facebook = link.url
+          if (link.label === 'LinkedIn') linksObj.linkedin = link.url
+        })
+        setContactLinks(linksObj)
+      } else {
+        setContactLinks({
+          whatsapp: userData.contactLinks.whatsapp || '',
+          instagram: userData.contactLinks.instagram || '',
+          facebook: userData.contactLinks.facebook || '',
+          linkedin: userData.contactLinks.linkedin || ''
+        })
+      }
     }
+      }
   }, [userData])
 
   const handleImageChange = (e) => {
@@ -134,6 +154,13 @@ const CreateProfile = () => {
         imageBase64 = await convertToBase64(image);
       }
 
+      const contactLinksArray = [
+      contactLinks.whatsapp && { label: 'WhatsApp', url: contactLinks.whatsapp },
+      contactLinks.instagram && { label: 'Instagram', url: contactLinks.instagram },
+      contactLinks.facebook && { label: 'Facebook', url: contactLinks.facebook },
+      contactLinks.linkedin && { label: 'LinkedIn', url: contactLinks.linkedin }
+    ].filter(Boolean)
+
       const { data } = await axios.post(backendUrl + '/api/user/update-profile', {
         userId: userData?._id,
         age: Number(age),
@@ -156,6 +183,7 @@ const CreateProfile = () => {
         petsAllowed,
         drinking,
         image: imageBase64,
+        contactLinks: contactLinksArray
       })
 
       if (data.success) {
@@ -233,6 +261,7 @@ const CreateProfile = () => {
                   </div>
                </div>
             </div>
+            
           </div>
 
           <InputField label="Current Location" value={location} onChange={e => setLocation(e.target.value)} placeholder="City, Area" required />
@@ -254,8 +283,40 @@ const CreateProfile = () => {
             <div className="flex-1">
                 <InputField label="Languages Spoken" value={languages} onChange={e => setLanguages(e.target.value)} placeholder="English, Bengali..." />
             </div>
+            
           </div>
+          <div className="border-t border-slate-700 pt-4">
+            <h3 className="text-white font-medium mb-2 ml-2">Contact Links</h3>
 
+            <InputField
+              label="WhatsApp"
+              value={contactLinks.whatsapp}
+              onChange={e => setContactLinks({ ...contactLinks, whatsapp: e.target.value })}
+              placeholder="+8801XXXXXXXXX"
+            />
+
+            <InputField
+              label="Instagram"
+              value={contactLinks.instagram}
+              onChange={e => setContactLinks({ ...contactLinks, instagram: e.target.value })}
+              placeholder="Instagram profile URL"
+            />
+
+            <InputField
+              label="Facebook"
+              value={contactLinks.facebook}
+              onChange={e => setContactLinks({ ...contactLinks, facebook: e.target.value })}
+              placeholder="Facebook profile URL"
+            />
+
+            <InputField
+              label="LinkedIn"
+              value={contactLinks.linkedin}
+              onChange={e => setContactLinks({ ...contactLinks, linkedin: e.target.value })}
+              placeholder="LinkedIn profile URL"
+            />
+          </div>
+  
           <div className="my-2 border-b border-slate-700"></div>
           <h3 className="text-white font-medium mb-2 ml-2">Personality & Lifestyle</h3>
 

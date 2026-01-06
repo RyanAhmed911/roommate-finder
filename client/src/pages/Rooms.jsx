@@ -463,6 +463,33 @@ const Rooms = () => {
                                         </div>
                                     </div>
 
+                                    {detailsModal.room.users &&
+                                        detailsModal.room.users.length > 0 &&
+                                        Array.isArray(detailsModal.room.users[0].contactLinks) &&
+                                        detailsModal.room.users[0].contactLinks.length > 0 && (
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                                    Contact Links
+                                                </h3>
+                                                <div className="bg-slate-800/30 p-4 rounded-xl border border-slate-700/50 space-y-3 text-sm">
+                                                    {detailsModal.room.users[0].contactLinks.map((link, index) => (
+                                                        <div key={index} className="flex justify-between items-baseline gap-4">
+                                                            <span className="text-slate-400 shrink-0 font-medium">{link.label}</span>
+                                                            
+                                                            <a 
+                                                                href={link.url} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="text-white text-xs truncate hover:text-blue-400 transition-colors pt-0.5"
+                                                            >
+                                                                {link.url}
+                                                            </a>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
                                     {/* Right Column */}
                                     <div>
                                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Amenities & Features</h3>

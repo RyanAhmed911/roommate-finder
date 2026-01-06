@@ -170,6 +170,25 @@ const ViewProfile = () => {
                     </div>
 
                     <div className="my-8 border-b border-slate-700/50"></div>
+                     {Array.isArray(profileData.contactLinks) && profileData.contactLinks.length > 0 && (
+                        <div className="mb-8">
+                            <h3 className="text-indigo-300 mb-4 font-bold uppercase text-xs tracking-wider">Contact Links</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {profileData.contactLinks.map((link, index) => (
+                                    <a
+                                        key={index}
+                                        href={link.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-[#333A5C] p-4 rounded-lg border border-indigo-500/20 hover:bg-indigo-500/10 transition-all"
+                                    >
+                                        <span className="block text-gray-400 text-xs mb-1">{link.label}</span>
+                                        <span className="text-indigo-300 break-all">{link.url}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Preferences Toggles Display */}
                     <div className="mb-8">
