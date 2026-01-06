@@ -2,13 +2,11 @@ export const calculateCompatibility = (user, room) => {
     let score = 0;
     let total = 0;
 
-    // Personality
     if (room.personalityType) {
         total++;
         if (user.personalityType === room.personalityType) score++;
     }
 
-    // Food habits
     if (room.foodHabits) {
         total++;
         if (
@@ -17,7 +15,6 @@ export const calculateCompatibility = (user, room) => {
         ) score++;
     }
 
-    // Sleep schedule
     if (room.sleepSchedule) {
         total++;
         if (
@@ -26,19 +23,16 @@ export const calculateCompatibility = (user, room) => {
         ) score++;
     }
 
-    // Cleanliness
     if (room.cleanlinessLevel) {
         total++;
         if (user.cleanlinessLevel === room.cleanlinessLevel) score++;
     }
 
-    // Noise tolerance
     if (room.noiseTolerance) {
         total++;
         if (user.noiseTolerance === room.noiseTolerance) score++;
     }
 
-    // Other preferences
     ['smoker', 'drinking', 'visitors', 'petsAllowed'].forEach(field => {
         if (room[field] !== undefined) {
             total++;
@@ -46,13 +40,11 @@ export const calculateCompatibility = (user, room) => {
         }
     });
 
-    // Hobbies
     if (room.hobbies?.length) {
         total++;
         if (user.hobbies?.some(h => room.hobbies.includes(h))) score++;
     }
 
-    // Medical conflicts
     if (user.medicalConditions?.includes('Asthma') && room.smoker) {
         total++;
     }

@@ -45,7 +45,7 @@ const FavouriteRoommates = () => {
             
             if (data.success) {
                 toast.success(data.message)
-                fetchFavouriteRoommates() // Refresh the list to remove the card
+                fetchFavouriteRoommates() 
             } else {
                 toast.error(data.message)
             }

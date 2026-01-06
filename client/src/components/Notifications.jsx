@@ -7,7 +7,6 @@ const Notifications = ({ requests, fetchRequests, onClose }) => {
   const { backendUrl, userData } = useContext(AppContent)
   const ref = useRef(null)
 
-  /* Close on click outside */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {

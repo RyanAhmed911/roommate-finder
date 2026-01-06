@@ -29,7 +29,7 @@ const Requests = ({ onClose }) => {
             
             if (data.success) {
                 toast.success(data.message)
-                fetchRequests() // Refresh list
+                fetchRequests() 
             } else {
                 toast.error(data.message)
             }

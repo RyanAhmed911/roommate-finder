@@ -1,6 +1,4 @@
 // Created by Prachurzo
-// Updated: Added Check Compatibility feature, matched dark theme styling
-
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContent } from '../context/AppContext'
 import Navbar from '../components/Navbar'
@@ -16,7 +14,6 @@ const FavouriteRooms = () => {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [favoriteRoomIds, setFavoriteRoomIds] = useState(new Set())
   
-  // Added: Compatibility State
   const [compatibilityModal, setCompatibilityModal] = useState({ open: false, score: null, room: null });
 
   const fetchFavouriteRooms = async () => {
@@ -79,7 +76,6 @@ const FavouriteRooms = () => {
     }
   }
 
-  // Added: Check Compatibility Function
   const checkCompatibility = async (room) => {
     if (!userData) {
         toast.error("Please login first");
@@ -158,7 +154,7 @@ const FavouriteRooms = () => {
 
                return (
                 <div key={room._id} className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group flex flex-col">
-                  {/* Image / Placeholder */}
+                  {/* Image */}
                   <div className="h-48 bg-slate-800 relative overflow-hidden group-hover:opacity-90 transition-opacity">
                       {room.image ? (
                           <img src={room.image} alt={room.location} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />

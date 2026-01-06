@@ -5,13 +5,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+//Implemented by Nusayba
 const ChoresPage = () => {
   const { backendUrl, userData } = useContext(AppContent);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [chores, setChores] = useState(null);
 
-  // Fetch chores from backend
   const fetchChores = async () => {
     try {
       axios.defaults.withCredentials = true;
@@ -31,7 +31,6 @@ const ChoresPage = () => {
     }
   };
 
-  // Mark a chore as done
   const markDone = async (choreKey) => {
     try {
       const response = await axios.post(backendUrl + '/api/chores/done', { choreKey });
@@ -63,7 +62,6 @@ const ChoresPage = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#08101C] text-white">Loading...</div>;
   if (!chores) return null;
 
-  // Mapping keys names
   const choreNames = {
     cooking: "Cooking",
     washingDishes: "Washing Dishes",
@@ -73,7 +71,6 @@ const ChoresPage = () => {
     shopping: "Shopping"
   };
 
-  // Current date
   const today = new Date();
   const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
   const dateString = today.toLocaleDateString(undefined, options);

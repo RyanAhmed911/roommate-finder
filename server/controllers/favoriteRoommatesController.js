@@ -4,7 +4,6 @@ import userModel from '../models/userModel.js';
 const ensureRoommatesArray = (doc) => {
     if (!doc) return doc;
 
-    // If roommates missing but posts exists (old wrong schema), migrate once.
     const hasRoommates = Array.isArray(doc.roommates);
     const hasOldPosts = Array.isArray(doc.posts) && doc.posts.length > 0;
 
@@ -15,7 +14,6 @@ const ensureRoommatesArray = (doc) => {
         doc.posts = [];
     }
 
-    // Always guarantee it's an array
     if (!Array.isArray(doc.roommates)) doc.roommates = [];
     return doc;
 };
@@ -40,7 +38,6 @@ export const addFavoriteRoommate = async (req, res) => {
 
         let favorites = await favoriteRoommatesModel.findOne({ favoritesID: userId });
 
-        // First time create
         if (!favorites) {
             favorites = new favoriteRoommatesModel({
                 favoritesID: userId,
@@ -54,7 +51,6 @@ export const addFavoriteRoommate = async (req, res) => {
             });
         }
 
-        // Make sure roommates array exists + migrate old docs if needed
         ensureRoommatesArray(favorites);
 
         const alreadyInFavorites = favorites.roommates.some(
@@ -147,7 +143,6 @@ export const getFavoriteRoommates = async (req, res) => {
 
         ensureRoommatesArray(favorites);
 
-        // save only if we migrated posts -> roommates
         await favorites.save();
 
         favorites = await favoriteRoommatesModel

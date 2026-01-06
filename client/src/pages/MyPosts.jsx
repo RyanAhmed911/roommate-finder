@@ -15,7 +15,6 @@ const MyPosts = () => {
     const [editingRoom, setEditingRoom] = useState(null)
     const [loading, setLoading] = useState(false)
 
-    // Form States for Edit Modal
     const [image, setImage] = useState(false)
     const [imagePreview, setImagePreview] = useState('')
     const [location, setLocation] = useState('')
