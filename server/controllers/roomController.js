@@ -7,7 +7,7 @@ export const createRoom = async (req, res) => {
             location, rent, capacity, balcony, attachedBathroom, floor, area, status,
             roomType, furnishingStatus, wifi, refrigerator, kitchenAccess, parking, elevator, generator, securityGuard,
             personalityType, hobbies, foodHabits, sleepSchedule, cleanlinessLevel, noiseTolerance, medicalConditions,
-            smoker, drinking, visitors, petsAllowed
+            smoker, drinking, visitors, petsAllowed, image
         } = req.body;
         
         const userId = req.userId; 
@@ -20,6 +20,7 @@ export const createRoom = async (req, res) => {
             attachedBathroom: attachedBathroom || false,
             users: [userId],
             status: status !== undefined ? status : true,
+            image: image || '',
             
             roomType: roomType || 'Shared',
             furnishingStatus: furnishingStatus || 'Unfurnished',
