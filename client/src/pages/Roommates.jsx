@@ -259,7 +259,6 @@ const Roommates = () => {
                                 <option value="">Any Preference</option>
                                 <option value="Non-Vegetarian">Non-Vegetarian</option>
                                 <option value="Vegetarian">Vegetarian</option>
-                                <option value="Vegan">Vegan</option>
                             </select>
                         </div>
 
@@ -277,9 +276,9 @@ const Roommates = () => {
                             <label className="text-xs font-semibold text-slate-400 uppercase">Cleanliness</label>
                             <select value={filterCleanliness} onChange={(e) => setFilterCleanliness(e.target.value)} className="p-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="">Any Preference</option>
-                                <option value="Neat">Neat</option>
+                                <option value="Low">Low</option>
                                 <option value="Moderate">Moderate</option>
-                                <option value="Laid-back">Laid-back</option>
+                                <option value="High">High</option>
                             </select>
                         </div>
 
@@ -421,11 +420,6 @@ const Roommates = () => {
                                             </span>
                                         )}
 
-                                        {user.cleanlinessLevel && (
-                                            <span className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-teal-900/30 text-teal-400 border border-teal-800">
-                                                {user.cleanlinessLevel} Clean
-                                            </span>
-                                        )}
                                     </div>
                                     
                                     <div className="flex-1"></div>

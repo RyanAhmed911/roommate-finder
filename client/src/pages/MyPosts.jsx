@@ -305,8 +305,8 @@ const MyPosts = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <select className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" value={foodHabits} onChange={e => setFoodHabits(e.target.value)}>
                                         <option value="">Food Habits</option>
-                                        <option value="Non-Vegetarian">Non-Veg</option>
-                                        <option value="Vegetarian">Veg</option>
+                                        <option value="Non-Vegetarian">Non-Vegetarian</option>
+                                        <option value="Vegetarian">Vegetarian</option>
                                     </select>
                                     <select className="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-lg outline-none focus:border-indigo-500" value={sleepSchedule} onChange={e => setSleepSchedule(e.target.value)}>
                                         <option value="">Sleep Schedule</option>

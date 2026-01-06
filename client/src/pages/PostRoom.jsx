@@ -232,8 +232,6 @@ const PostRoom = () => {
                                         <option value="">Select Food Habits</option>
                                         <option value="Vegetarian">Vegetarian</option>
                                         <option value="Non-Vegetarian">Non-Vegetarian</option>
-                                        <option value="Vegan">Vegan</option>
-                                        <option value="Flexible">Flexible</option>
                                     </select>
                                 </div>
 
@@ -251,9 +249,9 @@ const PostRoom = () => {
                                     <label className="block text-indigo-300 mb-1 text-sm">Cleanliness Level</label>
                                     <select className="w-full bg-[#333A5C] p-3 rounded-lg outline-none text-white cursor-pointer border border-slate-700 focus:border-indigo-500 transition-colors" value={cleanlinessLevel} onChange={e => setCleanlinessLevel(e.target.value)}>
                                         <option value="">Select Cleanliness Level</option>
-                                        <option value="Very Clean">Very Clean</option>
+                                        <option value="Low">Low</option>
                                         <option value="Moderate">Moderate</option>
-                                        <option value="Relaxed">Relaxed</option>
+                                        <option value="High">High</option>
                                     </select>
                                 </div>
 
