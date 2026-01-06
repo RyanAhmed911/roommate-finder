@@ -420,7 +420,7 @@ const Rooms = () => {
                             </div>
 
                             {/* Content */}
-                            <div className="p-6 overflow-y-auto custom-scrollbar">
+                            <div className="p-6 overflow-y-auto" style={{scrollbarWidth: 'thin',scrollbarColor: '#5c3f91 #1e1b2b'}}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {/* Left Column */}
                                     <div className="flex flex-col gap-6">
@@ -489,13 +489,85 @@ const Rooms = () => {
                                                     <span className="text-slate-400">Furnishing</span>
                                                     <span className="text-white">{detailsModal.room.furnishingStatus || 'Unfurnished'}</span>
                                                 </div>
-                                                {detailsModal.room.smoker !== undefined && (
+
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Smoking</span>
+                                                    <span className={detailsModal.room.smoker ? "text-green-400" : "text-red-400"}>
+                                                        {detailsModal.room.smoker ? "Allowed" : "Not Allowed"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Drinking</span>
+                                                    <span className={detailsModal.room.drinking ? "text-green-400" : "text-red-400"}>
+                                                        {detailsModal.room.drinking ? "Allowed" : "Not Allowed"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Visitors</span>
+                                                    <span className={detailsModal.room.visitors ? "text-green-400" : "text-red-400"}>
+                                                        {detailsModal.room.visitors ? "Allowed" : "Not Allowed"}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex justify-between">
+                                                    <span className="text-slate-400">Pets Allowed</span>
+                                                    <span className={detailsModal.room.petsAllowed ? "text-green-400" : "text-red-400"}>
+                                                        {detailsModal.room.petsAllowed ? "Yes" : "No"}
+                                                    </span>
+                                                </div>
+
+                                                {detailsModal.room.personalityType && (
                                                     <div className="flex justify-between">
-                                                        <span className="text-slate-400">Smoking</span>
-                                                        <span className={detailsModal.room.smoker ? "text-green-400" : "text-red-400"}>{detailsModal.room.smoker ? "Allowed" : "Not Allowed"}</span>
+                                                        <span className="text-slate-400">Personality Type</span>
+                                                        <span className="text-white">{detailsModal.room.personalityType}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.hobbies && detailsModal.room.hobbies.length > 0 && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Hobbies</span>
+                                                        <span className="text-white">{detailsModal.room.hobbies.join(', ')}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.foodHabits && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Food Habits</span>
+                                                        <span className="text-white">{detailsModal.room.foodHabits}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.sleepSchedule && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Sleep Schedule</span>
+                                                        <span className="text-white">{detailsModal.room.sleepSchedule}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.cleanlinessLevel && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Cleanliness Level</span>
+                                                        <span className="text-white">{detailsModal.room.cleanlinessLevel}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.noiseTolerance && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Noise Tolerance</span>
+                                                        <span className="text-white">{detailsModal.room.noiseTolerance}</span>
+                                                    </div>
+                                                )}
+
+                                                {detailsModal.room.medicalConditions && detailsModal.room.medicalConditions.length > 0 && (
+                                                    <div className="flex justify-between">
+                                                        <span className="text-slate-400">Medical Conditions</span>
+                                                        <span className="text-white">{detailsModal.room.medicalConditions.join(', ')}</span>
                                                     </div>
                                                 )}
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
