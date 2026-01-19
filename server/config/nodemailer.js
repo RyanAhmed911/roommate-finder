@@ -12,7 +12,6 @@ const transporter = nodemailer.createTransport({
     debug: true,
     logger: true
 });
-});
 
 export default transporter;
 //This part was implemented by Ryan
